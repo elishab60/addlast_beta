@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { MorphingText } from "@/components/magicui/morphing-text"
 import { HyperText } from "@/components/magicui/hyper-text";
 export function HyperTextDemo() {
     return <HyperText>Hover Me!</HyperText>;
@@ -11,8 +10,6 @@ import Image from "next/image"
 import Link from "next/link"
 
 export default function HeroSection() {
-    const texts = ["Vote", "Précommande", "Reçois", "Collectionne"]
-
     return (
         <section className="min-h-screen bg-white text-black flex flex-col items-center justify-center px-4 py-4">
             <div className="max-w-4xl mx-auto text-center space-y-12">

@@ -4,9 +4,10 @@ import { supabase } from "@/lib/supabase"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import UserProfileBento from "@/components/user-profile-bento"
+import { User } from "@/types/product"
 
 export default function AccountPage() {
-    const [profile, setProfile] = useState<any>(null)
+    const [profile, setProfile] = useState<User>(null)
 
     useEffect(() => {
         (async () => {

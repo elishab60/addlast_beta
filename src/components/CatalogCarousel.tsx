@@ -8,6 +8,15 @@ import { Progress } from "@/components/ui/progress"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Heart } from "lucide-react"
 import { toast } from "sonner"
+import { Product, User } from "@/types/product"
+
+// Vote type for the voting system
+type Vote = {
+    id: string;
+    user_id: string;
+    product_id: string;
+    created_at: string;
+}
 import { supabase } from "@/lib/supabase"
 
 type Product = {
@@ -23,7 +32,7 @@ type Product = {
 type CatalogGridProps = {
     title?: string
     products: Product[]
-    user: any
+    user: User
     ctaHref?: string
 }
 
@@ -73,7 +82,7 @@ export default function CatalogGrid({
 
 /* -------------------- Card avec logique de vote -------------------- */
 
-function GridCard({ product, user }: { product: Product; user: any }) {
+function GridCard({ product, user }: { product: Product; user: User }) {
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -121,7 +130,7 @@ function GridCard({ product, user }: { product: Product; user: any }) {
             .eq("user_id", user.id)
             .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
 
-        if (userVotes?.find((v: any) => v.product_id === product.id)) {
+        if (userVotes?.find((v: Vote) => v.product_id === product.id)) {
             toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
             setLoading(false)
             return

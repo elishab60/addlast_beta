@@ -10,20 +10,13 @@ import Link from "next/link";
 import { Loader2, PlusCircle } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 
-type Product = {
-    id: string;
-    name: string;
-    brand: string;
-    image_url: string;
-    price: number;
-    goal_likes: number;
-};
+import { Product, User } from "@/types/product";
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User>(null);
 
     // Fetch user connecté
     useEffect(() => {
@@ -34,7 +27,7 @@ export default function ProductsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
-            let { data, error } = await supabase
+            const { data, error } = await supabase
                 .from("products")
                 .select("*")
                 .order("created_at", { ascending: false });
@@ -55,11 +48,11 @@ export default function ProductsPage() {
             {/* Hero + barre de recherche */}
             <section className="w-full bg-gradient-to-b from-muted/50 to-background pt-10 pb-4 shadow">
                 <div className="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <h1 className="text-3xl font-bold tracking-tight">Nos Sneakers d'Exception</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Nos Sneakers d&apos;Exception</h1>
                     <div className="flex items-center gap-2">
                         <Input
                             type="text"
-                            placeholder="Rechercher une paire, une marque…"
+                            placeholder="Rechercher une paire, une marque..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             className="w-[250px]"

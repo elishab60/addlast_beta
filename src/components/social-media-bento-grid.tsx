@@ -158,7 +158,7 @@ export default function SocialMediaBentoGrid() {
                                 <Play className="w-8 h-8 text-white ml-1" />
                             </div>
                             <p className="text-white font-medium">Addlast Podcast - Épisode 1</p>
-                            <p className="text-gray-300 text-sm">L'histoire des sneakers iconiques</p>
+                            <p className="text-gray-300 text-sm">L&apos;histoire des sneakers iconiques</p>
                         </div>
                     </div>
                 </div>
