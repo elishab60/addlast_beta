@@ -4,17 +4,16 @@ import { supabase } from "@/lib/supabase";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HowItWorks from "@/components/HeroHowItWorks";
-import HomeVoteCart from "@/components/HomeVoteCart";
 import HeroSection from "@/components/HeroSection";
-import HomeHowItWorks from "@/components/HomeHowItWorks";
 import SocialMediaBentoGrid from "@/components/social-media-bento-grid"
 import CatalogCarousel from "@/components/CatalogCarousel";
+import { Product, User } from "@/types/product";
 
 
 
 export default function HomePage() {
-    const [products, setProducts] = useState<any[]>([]);
-    const [user, setUser] = useState<any>(null);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [user, setUser] = useState<User>(null);
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data }) => setUser(data?.user ?? null));

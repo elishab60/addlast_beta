@@ -10,6 +10,8 @@ import { Heart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
 
+import { User } from "@/types/product";
+
 type ProductCardProps = {
     product: {
         id: string;
@@ -19,7 +21,7 @@ type ProductCardProps = {
         price: number;
         goal_likes: number;
     };
-    user: any; // null ou user object
+    user: User; // null ou user object
     onVoted?: () => void; // pour refresh si besoin
 };
 
@@ -36,7 +38,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     }, [user]);
 
     async function fetchVotes() {
-        let { count } = await supabase
+        const { count } = await supabase
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
@@ -45,7 +47,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     }
 
     async function checkUserVote() {
-        let { data } = await supabase
+        const { data } = await supabase
             .from("votes")
             .select("*")
             .eq("user_id", user.id)
@@ -64,7 +66,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         }
 
         setLoading(true);
-        let { data: userVotes } = await supabase
+        const { data: userVotes } = await supabase
             .from("votes")
             .select("*")
             .eq("user_id", user.id)
@@ -81,7 +83,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
             return;
         }
 
-        let { error } = await supabase.from("votes").insert({
+        const { error } = await supabase.from("votes").insert({
             user_id: user.id,
             product_id: product.id,
         });

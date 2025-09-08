@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ShoppingCart, User, Heart, Menu } from "lucide-react"
+import { ShoppingCart, User as UserIcon, Heart, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useCart } from "@/context/CartContext"
 import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
+import { User } from "@/types/product"
 
 const navigation = [
     { name: "Catalogue", href: "/catalogue" },
@@ -30,7 +30,7 @@ export default function Header() {
     const pathname = usePathname()
     const { count } = useCart()
     const [isOpen, setIsOpen] = useState(false)
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User>(null)
     const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
@@ -112,7 +112,7 @@ export default function Header() {
                             className="text-sm font-semibold text-gray-600 hover:text-black flex items-center"
                             onClick={() => router.push("/sign-in")}
                         >
-                            <User className="w-4 h-4 mr-2" />
+                            <UserIcon className="w-4 h-4 mr-2" />
                             Se connecter
                         </Button>
                     ) : (
@@ -123,7 +123,7 @@ export default function Header() {
                                     size="icon"
                                     className="text-gray-600 hover:text-black"
                                 >
-                                    <User className="w-5 h-5" />
+                                    <UserIcon className="w-5 h-5" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56 shadow-xl rounded-2xl mt-2">
@@ -220,7 +220,7 @@ export default function Header() {
                                                 router.push("/sign-in")
                                             }}
                                         >
-                                            <User className="w-4 h-4 mr-2" />
+                                            <UserIcon className="w-4 h-4 mr-2" />
                                             Se connecter
                                         </Button>
                                     ) : (

@@ -31,7 +31,7 @@ export default function ProductPage() {
         const fetchProduct = async () => {
             setLoading(true);
             // Supposons que les images et tailles sont stockées en array/text dans Supabase
-            let { data, error } = await supabase
+            const { data, error } = await supabase
                 .from("products")
                 .select("*")
                 .eq("id", id)

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { User } from "@/types/product"
 
 type Product = {
     id: string;
@@ -16,7 +17,7 @@ type Product = {
 };
 
 export default function WishlistPage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User>(null);
     const [liked, setLiked] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -58,7 +59,7 @@ export default function WishlistPage() {
                     <div className="flex flex-col items-center w-full max-w-xl mx-auto py-16">
                         <Heart className="w-12 h-12 text-black mb-3" fill="black" />
                         <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 tracking-tight">
-                            UNE PAIRE VOUS FAIT DE L'OEIL ?
+                            UNE PAIRE VOUS FAIT DE L&apos;OEIL ?
                         </h2>
                         <div className="text-gray-600 text-center text-lg md:text-xl mb-8 max-w-xl leading-snug">
                             Ever wish you could save all your fave fits & accessories in one place to come back to later? Almost like a <span className="font-semibold">✨ wishlist ✨</span>.

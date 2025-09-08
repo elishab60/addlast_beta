@@ -16,3 +16,14 @@ export type Product = {
     created_at?: string;
     updated_at?: string;
 };
+
+// User type for authentication
+export type User = {
+    id: string;
+    email?: string;
+    user_metadata?: {
+        name?: string;
+        avatar_url?: string;
+    };
+    created_at?: string;
+} | null;
