@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import type { User } from "@supabase/supabase-js";
+
 
 type Product = {
     id: string;
@@ -16,7 +18,7 @@ type Product = {
 };
 
 export default function WishlistPage() {
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [liked, setLiked] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -39,8 +41,11 @@ export default function WishlistPage() {
                 const { data: products } = await supabase
                     .from("products")
                     .select("id, title, brand, images, price")
-                    .in("id", votes.map(v => v.product_id));
-                setLiked(products || []);
+                    .in(
+                        "id",
+                        votes.map((v) => v.product_id)
+                    );
+                setLiked((products as Product[]) || []);
             } else {
                 setLiked([]);
             }
@@ -58,10 +63,11 @@ export default function WishlistPage() {
                     <div className="flex flex-col items-center w-full max-w-xl mx-auto py-16">
                         <Heart className="w-12 h-12 text-black mb-3" fill="black" />
                         <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 tracking-tight">
-                            UNE PAIRE VOUS FAIT DE L'OEIL ?
+                            UNE PAIRE VOUS FAIT DE L&apos;OEIL ? {/* ✅ apostrophe échappée */}
                         </h2>
                         <div className="text-gray-600 text-center text-lg md:text-xl mb-8 max-w-xl leading-snug">
-                            Ever wish you could save all your fave fits & accessories in one place to come back to later? Almost like a <span className="font-semibold">✨ wishlist ✨</span>.
+                            Ever wish you could save all your fave fits &amp; accessories in one place to come back
+                            to later? Almost like a <span className="font-semibold">✨ wishlist ✨</span>.
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                             <Link href="/sign-up" className="w-full sm:w-auto">
@@ -94,9 +100,7 @@ export default function WishlistPage() {
                             Like tes paires préférées pour les retrouver ici.
                         </div>
                         <Link href="/products">
-                            <Button className="rounded-full px-8 py-4 text-lg font-bold">
-                                Voir les produits
-                            </Button>
+                            <Button className="rounded-full px-8 py-4 text-lg font-bold">Voir les produits</Button>
                         </Link>
                     </div>
                 )}
@@ -109,15 +113,16 @@ export default function WishlistPage() {
                             Mes paires likées
                         </h1>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                            {liked.map(prod => (
-                                <Link
-                                    href={`/products/${prod.id}`}
-                                    key={prod.id}
-                                    className="block group"
-                                >
+                            {liked.map((prod) => (
+                                <Link href={`/products/${prod.id}`} key={prod.id} className="block group">
                                     <div className="bg-white rounded-2xl shadow hover:shadow-xl hover:scale-[1.015] transition flex flex-col items-center p-5">
-                                        <div className="w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden mb-4">
-                                            <img src={prod.images?.[0]} alt={prod.title} className="object-contain w-full h-full" />
+                                        <div className="w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden mb-4 relative">
+                                            <img
+                                                src={prod.images?.[0] || "/placeholder.svg"}
+                                                alt={prod.title}
+                                                fill
+                                                className="object-contain"
+                                            />
                                         </div>
                                         <div className="font-bold text-lg mb-1 truncate w-full text-center">{prod.title}</div>
                                         <div className="text-gray-600 text-sm mb-2 w-full text-center">{prod.brand}</div>

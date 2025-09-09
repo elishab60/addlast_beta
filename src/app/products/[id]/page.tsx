@@ -14,13 +14,15 @@ type Product = {
     name: string;
     brand: string;
     price: number;
-    images: string[]; // array d’URL
+    images: string[];
     description: string;
-    sizes: string[]; // array de tailles, ex: ["38", "39", "40", "41", "42"]
+    sizes: string[];
 };
 
 export default function ProductPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = Array.isArray(params?.id) ? params.id[0] : (params?.id as string | undefined);
+
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState<string>("");
@@ -31,12 +33,12 @@ export default function ProductPage() {
         const fetchProduct = async () => {
             setLoading(true);
             // Supposons que les images et tailles sont stockées en array/text dans Supabase
-            let { data, error } = await supabase
+            const { data, error } = await supabase
                 .from("products")
                 .select("*")
                 .eq("id", id)
                 .single();
-            if (!error && data) setProduct(data);
+            if (!error && data) setProduct(data as Product);
             setLoading(false);
         };
         fetchProduct();
@@ -47,26 +49,29 @@ export default function ProductPage() {
             toast.info("Merci de choisir une taille !");
             return;
         }
+        if (!product) return;
+
         addToCart({
-            productId: product!.id,
-            name: product!.name,
-            image: product!.images[0],
+            productId: product.id,
+            name: product.name,
+            image: product.images[0],
             size: selectedSize,
-            price: product!.price,
+            price: product.price,
             quantity: 1,
         });
         toast.success("L'article a bien été ajouté au panier !");
     };
 
-    if (loading || !product) return (
-        <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1 flex items-center justify-center">
-                <div>Chargement…</div>
-            </main>
-            <Footer />
-        </div>
-    );
+    if (loading || !product)
+        return (
+            <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1 flex items-center justify-center">
+                    <div>Chargement…</div>
+                </main>
+                <Footer />
+            </div>
+        );
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
@@ -81,7 +86,7 @@ export default function ProductPage() {
                     <div>
                         <h1 className="text-3xl font-bold">{product.name}</h1>
                         <div className="text-lg text-muted-foreground">{product.brand}</div>
-                        <div className="text-2xl font-semibold mt-2">{product.price} €</div>
+                        <div className="text-2xl font-semibold mt-2">{product.price} €</div>
                     </div>
                     {/* Sélection taille */}
                     <div>

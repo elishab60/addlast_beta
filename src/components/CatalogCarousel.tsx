@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Heart } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import type { User } from "@supabase/supabase-js"
 
 type Product = {
     id: string
@@ -23,7 +24,7 @@ type Product = {
 type CatalogGridProps = {
     title?: string
     products: Product[]
-    user: any
+    user: User | null
     ctaHref?: string
 }
 
@@ -73,7 +74,7 @@ export default function CatalogGrid({
 
 /* -------------------- Card avec logique de vote -------------------- */
 
-function GridCard({ product, user }: { product: Product; user: any }) {
+function GridCard({ product, user }: { product: Product; user: User | null }) {
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -97,14 +98,14 @@ function GridCard({ product, user }: { product: Product; user: any }) {
     async function checkUserVote() {
         const { data } = await supabase
             .from("votes")
-            .select("*")
-            .eq("user_id", user.id)
+            .select("product_id")
+            .eq("user_id", user?.id)
             .eq("product_id", product.id)
             .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
         setUserVoted(!!(data && data.length))
     }
 
-    async function handleVote(e: React.MouseEvent) {
+    async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
         e.stopPropagation()
 
@@ -117,11 +118,11 @@ function GridCard({ product, user }: { product: Product; user: any }) {
 
         const { data: userVotes } = await supabase
             .from("votes")
-            .select("*")
+            .select("product_id")
             .eq("user_id", user.id)
             .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
 
-        if (userVotes?.find((v: any) => v.product_id === product.id)) {
+        if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
             toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
             setLoading(false)
             return
@@ -149,7 +150,10 @@ function GridCard({ product, user }: { product: Product; user: any }) {
         }
     }
 
-    const percent = Math.min(100, (votesCount / (product.goal_likes || 1)) * 100)
+    const percent = Math.min(
+        100,
+        (votesCount / (product.goal_likes > 0 ? product.goal_likes : 1)) * 100
+    )
 
     return (
         <Link
@@ -188,7 +192,7 @@ function GridCard({ product, user }: { product: Product; user: any }) {
                             size="icon"
                             className={
                                 userVoted
-                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-black hover:text-white"
+                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg黑 hover:text-white"
                                     : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
                             }
                             aria-label={userVoted ? "Déjà voté" : "Voter"}

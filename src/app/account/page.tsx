@@ -4,9 +4,10 @@ import { supabase } from "@/lib/supabase"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import UserProfileBento from "@/components/user-profile-bento"
+import { Profile } from "@/types"
 
 export default function AccountPage() {
-    const [profile, setProfile] = useState<any>(null)
+    const [profile, setProfile] = useState<Profile>(null)
 
     useEffect(() => {
         (async () => {
@@ -17,7 +18,7 @@ export default function AccountPage() {
                     .select("prenom, nom, email, dob, newsletter, created_at, pointure, adresse, ville, code_postal, pays")
                     .eq("id", user.id)
                     .single()
-                if (!error) setProfile({ ...data, id: user.id })
+                if (!error && data) setProfile({ ...data, id: user.id })
             }
         })()
     }, [])

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ShoppingCart, User, Heart, Menu } from "lucide-react"
+import { ShoppingCart, User as UserIcon, Heart, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
@@ -16,10 +16,11 @@ import {
 import { useCart } from "@/context/CartContext"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
+import type { User } from "@supabase/supabase-js"
 
 const navigation = [
-    { name: "Catalogue", href: "/catalogue" },
-    { name: "Votes", href: "/votes" },
+    { name: "Catalogue", href: "/products" },
+    { name: "Votes", href: "/wishlist" },
     { name: "Précommandes", href: "/precommandes" },
     { name: "Communauté", href: "/communaute" },
     { name: "À propos", href: "/a-propos" },
@@ -30,7 +31,7 @@ export default function Header() {
     const pathname = usePathname()
     const { count } = useCart()
     const [isOpen, setIsOpen] = useState(false)
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null)
     const [isAdmin, setIsAdmin] = useState(false)
 
     useEffect(() => {
@@ -112,7 +113,7 @@ export default function Header() {
                             className="text-sm font-semibold text-gray-600 hover:text-black flex items-center"
                             onClick={() => router.push("/sign-in")}
                         >
-                            <User className="w-4 h-4 mr-2" />
+                            <UserIcon className="w-4 h-4 mr-2" />
                             Se connecter
                         </Button>
                     ) : (
@@ -123,7 +124,7 @@ export default function Header() {
                                     size="icon"
                                     className="text-gray-600 hover:text-black"
                                 >
-                                    <User className="w-5 h-5" />
+                                    <UserIcon className="w-5 h-5" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56 shadow-xl rounded-2xl mt-2">
@@ -220,7 +221,7 @@ export default function Header() {
                                                 router.push("/sign-in")
                                             }}
                                         >
-                                            <User className="w-4 h-4 mr-2" />
+                                            <UserIcon className="w-4 h-4 mr-2" />
                                             Se connecter
                                         </Button>
                                     ) : (

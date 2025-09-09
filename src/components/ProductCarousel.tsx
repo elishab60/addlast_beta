@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+
 type Props = { images: string[] };
 
 export default function ProductCarousel({ images }: Props) {
@@ -9,11 +10,7 @@ export default function ProductCarousel({ images }: Props) {
 
     return (
         <div className="relative w-full aspect-[4/3] bg-muted/30 rounded-2xl overflow-hidden flex items-center justify-center">
-            <img
-                src={images[idx]}
-                alt=""
-                className="object-contain w-full h-full transition-all"
-            />
+            <img src={images[idx]} alt="" className="object-contain w-full h-full transition-all"/>
             {images.length > 1 && (
                 <>
                     <button

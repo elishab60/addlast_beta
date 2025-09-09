@@ -9,7 +9,9 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Loader2, PlusCircle } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import type { User } from "@supabase/supabase-js";
 
+// Type produit
 type Product = {
     id: string;
     name: string;
@@ -17,13 +19,14 @@ type Product = {
     image_url: string;
     price: number;
     goal_likes: number;
+    created_at: string;
 };
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null); // ✅ plus de any
 
     // Fetch user connecté
     useEffect(() => {
@@ -34,11 +37,12 @@ export default function ProductsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
-            let { data, error } = await supabase
+            const { data, error } = await supabase
                 .from("products")
                 .select("*")
                 .order("created_at", { ascending: false });
-            if (!error && data) setProducts(data);
+
+            if (!error && data) setProducts(data as Product[]);
             setLoading(false);
         };
         fetchProducts();
@@ -52,16 +56,19 @@ export default function ProductsPage() {
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
+
             {/* Hero + barre de recherche */}
             <section className="w-full bg-gradient-to-b from-muted/50 to-background pt-10 pb-4 shadow">
                 <div className="container mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <h1 className="text-3xl font-bold tracking-tight">Nos Sneakers d'Exception</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">
+                        Nos Sneakers d&apos;Exception {/* ✅ apostrophe échappée */}
+                    </h1>
                     <div className="flex items-center gap-2">
                         <Input
                             type="text"
                             placeholder="Rechercher une paire, une marque…"
                             value={search}
-                            onChange={e => setSearch(e.target.value)}
+                            onChange={(e) => setSearch(e.target.value)}
                             className="w-[250px]"
                         />
                         <Link href="/proposer">
@@ -80,10 +87,12 @@ export default function ProductsPage() {
                         <Loader2 className="animate-spin mr-2" /> Chargement…
                     </div>
                 ) : filtered.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-24">Aucun produit trouvé.</div>
+                    <div className="text-center text-muted-foreground py-24">
+                        Aucun produit trouvé.
+                    </div>
                 ) : (
                     <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                        {filtered.map(prod => (
+                        {filtered.map((prod) => (
                             <ProductCard key={prod.id} product={prod} user={user} />
                         ))}
                     </div>

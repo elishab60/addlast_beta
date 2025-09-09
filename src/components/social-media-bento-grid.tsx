@@ -154,11 +154,12 @@ export default function SocialMediaBentoGrid() {
                     </div>
                     <div className="bg-black rounded-b-lg aspect-video flex items-center justify-center group cursor-pointer transition-all duration-300 hover:bg-gray-800">
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                                <Play className="w-8 h-8 text-white ml-1" />
+                            <div
+                                className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
+                                <Play className="w-8 h-8 text-white ml-1"/>
                             </div>
                             <p className="text-white font-medium">Addlast Podcast - Épisode 1</p>
-                            <p className="text-gray-300 text-sm">L'histoire des sneakers iconiques</p>
+                            <p className="text-gray-300 text-sm">{"L'histoire des sneakers iconiques"}</p>
                         </div>
                     </div>
                 </div>

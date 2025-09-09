@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Heart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 type ProductCardProps = {
     product: {
@@ -19,8 +20,8 @@ type ProductCardProps = {
         price: number;
         goal_likes: number;
     };
-    user: any; // null ou user object
-    onVoted?: () => void; // pour refresh si besoin
+    user: User | null; // ✅ typage
+    onVoted?: () => void;
 };
 
 export default function ProductCard({ product, user, onVoted }: ProductCardProps) {
@@ -36,7 +37,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     }, [user]);
 
     async function fetchVotes() {
-        let { count } = await supabase
+        const { count } = await supabase
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
@@ -45,18 +46,18 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     }
 
     async function checkUserVote() {
-        let { data } = await supabase
+        const { data } = await supabase
             .from("votes")
             .select("*")
-            .eq("user_id", user.id)
+            .eq("user_id", user?.id)
             .eq("product_id", product.id)
             .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString());
         setUserVoted(!!(data && data.length));
     }
 
     async function handleVote(e: React.MouseEvent) {
-        e.preventDefault();     // évite la navigation
-        e.stopPropagation();    // évite propagation vers Link parent
+        e.preventDefault();
+        e.stopPropagation();
 
         if (!user) {
             toast.info("Connecte-toi pour voter !");
@@ -64,7 +65,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         }
 
         setLoading(true);
-        let { data: userVotes } = await supabase
+        const { data: userVotes } = await supabase
             .from("votes")
             .select("*")
             .eq("user_id", user.id)
@@ -81,7 +82,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
             return;
         }
 
-        let { error } = await supabase.from("votes").insert({
+        const { error } = await supabase.from("votes").insert({
             user_id: user.id,
             product_id: product.id,
         });

@@ -13,16 +13,16 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { CalendarDays, Mail, MapPin, Settings, Shield, User, Zap } from "lucide-react"
 import { toast } from "sonner"
+import { Profile } from "@/types"
 
 interface UserProfileBentoProps {
-    profile: any
+    profile: Profile
 }
 
 // Util: assure un format YYYY-MM-DD (ou "" si invalide)
-function toISODateOnly(input: any): string {
+function toISODateOnly(input: string | Date | null | undefined): string {
     if (!input) return ""
     try {
-        // input peut être déjà "YYYY-MM-DD" ou un timestamp
         const d = new Date(input)
         if (isNaN(d.getTime())) return ""
         return d.toISOString().slice(0, 10)
@@ -31,15 +31,30 @@ function toISODateOnly(input: any): string {
     }
 }
 
+type UserData = {
+    firstName: string
+    lastName: string
+    email: string
+    birthDate: string
+    shoeSize: string
+    newsletter: boolean
+    address: string
+    city: string
+    postalCode: string
+    country: string
+    createdAt: string | null
+    id: string
+}
+
 export default function UserProfileBento({ profile }: UserProfileBentoProps) {
     // Normalise la DOB à l’affichage pour l’input type="date"
     const initialDob = toISODateOnly(profile.dob)
 
-    const [userData, setUserData] = useState({
+    const [userData, setUserData] = useState<UserData>({
         firstName: profile.prenom || "",
         lastName: profile.nom || "",
         email: profile.email || "",
-        birthDate: initialDob,          // toujours "YYYY-MM-DD" ou ""
+        birthDate: initialDob, // toujours "YYYY-MM-DD" ou ""
         shoeSize: profile.pointure || "",
         newsletter: !!profile.newsletter,
         address: profile.adresse || "",
@@ -53,7 +68,7 @@ export default function UserProfileBento({ profile }: UserProfileBentoProps) {
     const [dirty, setDirty] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    const handleChange = (field: string, value: any) => {
+    const handleChange = <K extends keyof UserData>(field: K, value: UserData[K]) => {
         setUserData((prev) => ({ ...prev, [field]: value }))
         setDirty(true)
     }
@@ -62,7 +77,8 @@ export default function UserProfileBento({ profile }: UserProfileBentoProps) {
         setLoading(true)
 
         // IMPORTANT: n’envoyer JAMAIS "" pour un champ DATE -> utiliser null
-        const dobForDb = userData.birthDate && userData.birthDate.trim() !== "" ? userData.birthDate : null
+        const dobForDb =
+            userData.birthDate && userData.birthDate.trim() !== "" ? userData.birthDate : null
 
         const { error } = await supabase
             .from("profiles")
@@ -70,7 +86,7 @@ export default function UserProfileBento({ profile }: UserProfileBentoProps) {
                 prenom: userData.firstName,
                 nom: userData.lastName,
                 email: userData.email,
-                dob: dobForDb,                 // <- null si vide, "YYYY-MM-DD" sinon
+                dob: dobForDb, // <- null si vide, "YYYY-MM-DD" sinon
                 newsletter: userData.newsletter,
                 pointure: userData.shoeSize,
                 adresse: userData.address,
@@ -302,7 +318,9 @@ export default function UserProfileBento({ profile }: UserProfileBentoProps) {
                             Modifier le mot de passe
                         </Button>
                         <div className="text-center">
-                            <p className="text-xs text-muted-foreground">Dernière modification il y a 3 mois</p>
+                            <p className="text-xs text-muted-foreground">
+                                Dernière modification il y a 3 mois
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
