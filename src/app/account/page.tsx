@@ -4,21 +4,40 @@ import { supabase } from "@/lib/supabase"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import UserProfileBento from "@/components/user-profile-bento"
-import { Profile } from "@/types"
+import type { Profile } from "@/types"
 
 export default function AccountPage() {
-    const [profile, setProfile] = useState<Profile>(null)
+    // ✅ autoriser null au démarrage
+    const [profile, setProfile] = useState<Profile | null>(null)
 
     useEffect(() => {
-        (async () => {
+        ;(async () => {
             const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data, error } = await supabase
-                    .from("profiles")
-                    .select("prenom, nom, email, dob, newsletter, created_at, pointure, adresse, ville, code_postal, pays")
-                    .eq("id", user.id)
-                    .single()
-                if (!error && data) setProfile({ ...data, id: user.id })
+            if (!user) return
+
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("prenom, nom, email, dob, newsletter, created_at, pointure, adresse, ville, code_postal, pays")
+                .eq("id", user.id)
+                .single()
+
+            if (!error && data) {
+                // ✅ on reconstruit un Profile complet (id depuis l'user)
+                const p: Profile = {
+                    id: user.id,
+                    prenom: data.prenom ?? null,
+                    nom: data.nom ?? null,
+                    email: data.email ?? null,
+                    dob: data.dob ?? null,
+                    newsletter: data.newsletter ?? null,
+                    created_at: data.created_at,
+                    pointure: data.pointure ?? null,
+                    adresse: data.adresse ?? null,
+                    ville: data.ville ?? null,
+                    code_postal: data.code_postal ?? null,
+                    pays: data.pays ?? null,
+                }
+                setProfile(p)
             }
         })()
     }, [])

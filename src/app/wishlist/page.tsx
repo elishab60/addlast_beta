@@ -120,7 +120,6 @@ export default function WishlistPage() {
                                             <img
                                                 src={prod.images?.[0] || "/placeholder.svg"}
                                                 alt={prod.title}
-                                                fill
                                                 className="object-contain"
                                             />
                                         </div>
