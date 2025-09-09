@@ -1,37 +1,44 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Profile } from "@/types"; // ton interface existante
+import type { Profile } from "@/types";
 
-// 🔧 On étend localement le type pour les champs utilisés ici
+// ✅ type local étendu aux colonnes utilisées ici
 type ProfileUI = Profile & {
+    id: string;
+    email?: string | null;
+    prenom?: string | null;
+    nom?: string | null;
+    dob?: string | null;          // ← string ISO
+    newsletter?: boolean | null;
     role?: string | null;
     pointure?: string | number | null;
-    newsletter?: boolean | null;
-    dob?: string | Date | null;
     adresse?: string | null;
     ville?: string | null;
     code_postal?: string | null;
     pays?: string | null;
-    created_at?: string | Date | null;
-    prenom?: string | null;
-    nom?: string | null;
-    email?: string | null;
-    id: string;
+    created_at?: string | null;   // ← string ISO
 };
+
+// ✅ helper sans any
+function formatDate(value?: string | Date | null): string {
+    if (!value) return "";
+    const d = typeof value === "string" ? new Date(value) : value;
+    return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("fr-FR");
+}
 
 export default function UsersTable() {
     const [users, setUsers] = useState<ProfileUI[]>([]);
-    const [search, setSearch] = useState<string>("");
-    const [filterNewsletter, setFilterNewsletter] = useState<"all" | "yes" | "no">("all");
-    const [filterPointure, setFilterPointure] = useState<string>("");
-    const [filterRole, setFilterRole] = useState<string>("");
+    const [search, setSearch] = useState("");
+    // ✅ on n’utilise pas les setters → on ne les déstructure pas
+    const [filterNewsletter] = useState<"all" | "yes" | "no">("all");
+    const [filterPointure] = useState<string>("");
+    const [filterRole] = useState<string>("");
 
     useEffect(() => {
         const fetchUsers = async () => {
             const { data, error } = await supabase
                 .from("profiles")
-                // ✅ on récupère *explicitement* les colonnes qu'on utilise
                 .select(`
           id, email, prenom, nom, dob, newsletter, role, pointure,
           adresse, ville, code_postal, pays, created_at
@@ -47,11 +54,12 @@ export default function UsersTable() {
     }, []);
 
     const filtered = users.filter((u) => {
+        const q = search.toLowerCase();
         const matchesSearch =
-            !search ||
-            (u.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (u.prenom ?? "").toLowerCase().includes(search.toLowerCase()) ||
-            (u.nom ?? "").toLowerCase().includes(search.toLowerCase());
+            !q ||
+            (u.email ?? "").toLowerCase().includes(q) ||
+            (u.prenom ?? "").toLowerCase().includes(q) ||
+            (u.nom ?? "").toLowerCase().includes(q);
 
         const matchesNewsletter =
             filterNewsletter === "all" ||
@@ -66,7 +74,7 @@ export default function UsersTable() {
 
     return (
         <div className="w-full bg-white rounded-xl shadow">
-            {/* ✅ Toolbar recherche (tu pourras ajouter les filtres ici si tu veux les UI) */}
+            {/* Toolbar recherche (UI des filtres à ajouter si tu veux les exploiter) */}
             <div className="p-3 border-b border-gray-200 flex flex-col md:flex-row gap-3 md:items-center justify-between">
                 <input
                     type="text"
@@ -77,7 +85,7 @@ export default function UsersTable() {
                 />
             </div>
 
-            {/* ✅ Table complète */}
+            {/* Table */}
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                     <thead>
@@ -102,7 +110,7 @@ export default function UsersTable() {
                             <Td>{u.email ?? ""}</Td>
                             <Td>{u.prenom ?? ""}</Td>
                             <Td>{u.nom ?? ""}</Td>
-                            <Td>{u.dob ? new Date(u.dob as any).toLocaleDateString("fr-FR") : ""}</Td>
+                            <Td>{formatDate(u.dob)}</Td>
                             <Td>{u.newsletter ? "Oui" : "Non"}</Td>
                             <Td>{u.role ?? ""}</Td>
                             <Td>{u.pointure ?? ""}</Td>
@@ -110,7 +118,7 @@ export default function UsersTable() {
                             <Td>{u.ville ?? ""}</Td>
                             <Td>{u.code_postal ?? ""}</Td>
                             <Td>{u.pays ?? ""}</Td>
-                            <Td>{u.created_at ? new Date(u.created_at as any).toLocaleDateString("fr-FR") : ""}</Td>
+                            <Td>{formatDate(u.created_at)}</Td>
                         </tr>
                     ))}
                     {filtered.length === 0 && (
@@ -127,7 +135,7 @@ export default function UsersTable() {
     );
 }
 
-/* Helpers pour en-têtes / cellules */
+/* Helpers */
 function Th({ children }: { children: React.ReactNode }) {
     return (
         <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase whitespace-nowrap">
