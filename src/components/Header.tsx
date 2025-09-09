@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { ShoppingCart, User as UserIcon, Heart, Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { ShoppingCart, User as UserIcon, Heart, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useCart } from "@/context/CartContext"
-import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
-import type { User } from "@supabase/supabase-js"
+} from "@/components/ui/dropdown-menu";
+import { useCart } from "@/context/CartContext";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import type { User } from "@supabase/supabase-js";
 
 const navigation = [
     { name: "Catalogue", href: "/products" },
@@ -24,55 +24,68 @@ const navigation = [
     { name: "Précommandes", href: "/precommandes" },
     { name: "Communauté", href: "/communaute" },
     { name: "À propos", href: "/a-propos" },
-]
+];
 
 export default function Header() {
-    const router = useRouter()
-    const pathname = usePathname()
-    const { count } = useCart()
-    const [isOpen, setIsOpen] = useState(false)
-    const [user, setUser] = useState<User | null>(null)
-    const [isAdmin, setIsAdmin] = useState(false)
+    const router = useRouter();
+    const pathname = usePathname();
+    const { count } = useCart();
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = pas encore chargé
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
-        let ignore = false
+        let ignore = false;
+
         supabase.auth.getUser().then(async ({ data }) => {
-            if (ignore) return
-            setUser(data?.user ?? null)
+            if (ignore) return;
+            setUser(data?.user ?? null);
             if (data?.user) {
                 const { data: profile } = await supabase
                     .from("profiles")
                     .select("role")
                     .eq("id", data.user.id)
-                    .single()
-                setIsAdmin(profile?.role === "admin")
+                    .single();
+                setIsAdmin(profile?.role === "admin");
             }
-        })
+        });
 
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null)
+            setUser(session?.user ?? null);
             if (session?.user) {
                 supabase
                     .from("profiles")
                     .select("role")
                     .eq("id", session.user.id)
                     .single()
-                    .then(({ data: profile }) => setIsAdmin(profile?.role === "admin"))
+                    .then(({ data: profile }) => setIsAdmin(profile?.role === "admin"));
             } else {
-                setIsAdmin(false)
+                setIsAdmin(false);
             }
-        })
+        });
 
         return () => {
-            ignore = true
-            listener?.subscription.unsubscribe()
-        }
-    }, [])
+            ignore = true;
+            listener?.subscription.unsubscribe();
+        };
+    }, []);
 
     const handleLogout = async () => {
-        await supabase.auth.signOut()
-        toast.success("Déconnexion réussie !")
-        router.replace("/")
+        await supabase.auth.signOut();
+        toast.success("Déconnexion réussie !");
+        router.replace("/");
+    };
+
+    // 🚨 Tant que Supabase n’a pas répondu → on bloque toute la page
+    if (user === undefined) {
+        return (
+            <div className="w-full h-screen flex items-center justify-center bg-white">
+        <span className="text-gray-500 animate-pulse text-lg font-semibold">
+          Chargement…
+        </span>
+            </div>
+        );
     }
 
     return (
@@ -91,10 +104,8 @@ export default function Header() {
                         <Link
                             key={item.name}
                             href={item.href}
-                            className={`text-sm font-semibold transition-colors relative group ${
-                                pathname === item.href
-                                    ? "text-black"
-                                    : "text-gray-500 hover:text-black"
+                            className={`text-sm font-semibold transition-colors relative group min-w-[110px] text-center ${
+                                pathname === item.href ? "text-black" : "text-gray-700 hover:text-black"
                             }`}
                         >
                             {item.name}
@@ -105,50 +116,52 @@ export default function Header() {
 
                 {/* Desktop actions */}
                 <div className="hidden md:flex items-center space-x-4">
-                    {/* User */}
-                    {!user ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-sm font-semibold text-gray-600 hover:text-black flex items-center"
-                            onClick={() => router.push("/sign-in")}
-                        >
-                            <UserIcon className="w-4 h-4 mr-2" />
-                            Se connecter
-                        </Button>
-                    ) : (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-gray-600 hover:text-black"
-                                >
-                                    <UserIcon className="w-5 h-5" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 shadow-xl rounded-2xl mt-2">
-                                <DropdownMenuItem asChild>
-                                    <Link href="/account">Mon profil</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/orders">Mes commandes</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                {isAdmin && (
-                                    <>
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/admin">Admin</Link>
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                    </>
-                                )}
-                                <DropdownMenuItem onClick={handleLogout}>
-                                    Déconnexion
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+                    {/* Zone utilisateur largeur fixe */}
+                    <div className="min-w-[130px] flex justify-end">
+                        {!user ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-sm font-semibold text-gray-600 hover:text-black flex items-center"
+                                onClick={() => router.push("/sign-in")}
+                            >
+                                <UserIcon className="w-4 h-4 mr-2" />
+                                Se connecter
+                            </Button>
+                        ) : (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-gray-600 hover:text-black"
+                                    >
+                                        <UserIcon className="w-5 h-5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56 shadow-xl rounded-2xl mt-2">
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/account">Mon profil</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/orders">Mes commandes</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    {isAdmin && (
+                                        <>
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/admin">Admin</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                        </>
+                                    )}
+                                    <DropdownMenuItem onClick={handleLogout}>
+                                        Déconnexion
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
+                    </div>
 
                     {/* Likes */}
                     <Link href="/wishlist">
@@ -159,7 +172,11 @@ export default function Header() {
 
                     {/* Cart */}
                     <Link href="/cart">
-                        <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-black">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="relative text-gray-600 hover:text-black"
+                        >
                             <ShoppingCart className="w-5 h-5" />
                             {count > 0 && (
                                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center font-medium">
@@ -173,14 +190,19 @@ export default function Header() {
                 {/* Mobile menu */}
                 <div className="md:hidden flex items-center space-x-2">
                     {/* Likes */}
-                    <Link href="/likes">
+                    <Link href="/wishlist">
                         <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black">
                             <Heart className="w-5 h-5" />
                         </Button>
                     </Link>
+
                     {/* Cart */}
                     <Link href="/cart">
-                        <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-black">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="relative text-gray-600 hover:text-black"
+                        >
                             <ShoppingCart className="w-5 h-5" />
                             {count > 0 && (
                                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center font-medium">
@@ -189,6 +211,7 @@ export default function Header() {
                             )}
                         </Button>
                     </Link>
+
                     {/* Burger menu */}
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild>
@@ -217,8 +240,8 @@ export default function Header() {
                                             variant="ghost"
                                             className="justify-start text-gray-600 hover:text-black"
                                             onClick={() => {
-                                                setIsOpen(false)
-                                                router.push("/sign-in")
+                                                setIsOpen(false);
+                                                router.push("/sign-in");
                                             }}
                                         >
                                             <UserIcon className="w-4 h-4 mr-2" />
@@ -251,8 +274,8 @@ export default function Header() {
                                             )}
                                             <button
                                                 onClick={() => {
-                                                    handleLogout()
-                                                    setIsOpen(false)
+                                                    handleLogout();
+                                                    setIsOpen(false);
                                                 }}
                                                 className="text-left text-gray-700 hover:text-black"
                                             >
@@ -267,5 +290,5 @@ export default function Header() {
                 </div>
             </div>
         </header>
-    )
+    );
 }

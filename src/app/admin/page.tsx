@@ -1,8 +1,10 @@
+// app/admin/page.tsx
 "use client";
 import { useState } from "react";
 import UsersTable from "@/components/admin/UsersTable";
 import ProductsTable from "@/components/admin/ProductsTable";
 import SubmissionsTable from "@/components/SubmissionsTable";
+import AdminLikesTable from "@/components/admin/AdminLikesTable"; // 👈 NEW
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -10,6 +12,7 @@ const sections = [
     { id: "orders", label: "Gérer les commandes" },
     { id: "users", label: "Gérer les utilisateurs" },
     { id: "products", label: "Gérer les produits" },
+    { id: "likes", label: "Votes (likes)" },         // 👈 NEW
     { id: "submissions", label: "Soumissions communauté" },
 ];
 
@@ -42,16 +45,17 @@ export default function AdminPage() {
                     </Link>
                 </div>
             </nav>
+
             {/* Content */}
             <main className="flex-1 flex flex-col items-stretch py-12 px-6">
                 <div className="w-full max-w-6xl flex-1 mx-auto bg-white rounded-2xl shadow p-10 min-h-[70vh] flex flex-col">
                     {selected === "orders" && (
                         <div>
                             <h3 className="font-bold text-2xl mb-8">Gestion des commandes</h3>
-                            {/* Ajoute ici le composant de gestion des commandes */}
                             <p className="text-gray-400">Module à venir...</p>
                         </div>
                     )}
+
                     {selected === "users" && (
                         <div className="flex-1 flex flex-col">
                             <h3 className="font-bold text-2xl mb-8">Gestion des utilisateurs</h3>
@@ -60,6 +64,7 @@ export default function AdminPage() {
                             </div>
                         </div>
                     )}
+
                     {selected === "products" && (
                         <div className="flex-1 flex flex-col">
                             <h3 className="font-bold text-2xl mb-8">Gestion des produits</h3>
@@ -68,6 +73,16 @@ export default function AdminPage() {
                             </div>
                         </div>
                     )}
+
+                    {selected === "likes" && ( // 👈 NEW
+                        <div className="flex-1 flex flex-col">
+                            <h3 className="font-bold text-2xl mb-8">Votes (likes) par produit</h3>
+                            <div className="flex-1 w-full">
+                                <AdminLikesTable />
+                            </div>
+                        </div>
+                    )}
+
                     {selected === "submissions" && (
                         <div className="flex-1 flex flex-col">
                             <h3 className="font-bold text-2xl mb-8">Soumissions Communauté</h3>

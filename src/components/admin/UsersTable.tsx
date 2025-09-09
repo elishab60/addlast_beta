@@ -1,11 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Profile } from "@/types"; // ✅ ton interface
+import type { Profile } from "@/types"; // ✅ interface à jour
 
 export default function UsersTable() {
     const [users, setUsers] = useState<Profile[]>([]);
     const [search, setSearch] = useState<string>("");
+    const [filterNewsletter, setFilterNewsletter] = useState<"all" | "yes" | "no">("all");
+    const [filterPointure, setFilterPointure] = useState<string>("");
+    const [filterRole, setFilterRole] = useState<string>("");
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -19,62 +22,76 @@ export default function UsersTable() {
         fetchUsers();
     }, []);
 
-    const filtered = users.filter(
-        (u) =>
+    const filtered = users.filter((u) => {
+        const matchesSearch =
             !search ||
             u.email?.toLowerCase().includes(search.toLowerCase()) ||
             u.prenom?.toLowerCase().includes(search.toLowerCase()) ||
-            u.nom?.toLowerCase().includes(search.toLowerCase())
-    );
+            u.nom?.toLowerCase().includes(search.toLowerCase());
+
+        const matchesNewsletter =
+            filterNewsletter === "all" ||
+            (filterNewsletter === "yes" && u.newsletter) ||
+            (filterNewsletter === "no" && !u.newsletter);
+
+        const matchesPointure = !filterPointure || u.pointure === filterPointure;
+        const matchesRole = !filterRole || u.role === filterRole;
+
+        return matchesSearch && matchesNewsletter && matchesPointure && matchesRole;
+    });
 
     return (
         <div className="w-full bg-white rounded-xl shadow">
-            {/* ✅ barre de recherche (setSearch est utilisé) */}
-            <div className="p-3 border-b border-gray-200">
+            {/* ✅ Toolbar recherche + filtres */}
+            <div className="p-3 border-b border-gray-200 flex flex-col md:flex-row gap-3 md:items-center justify-between">
                 <input
                     type="text"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Rechercher par email, prénom ou nom…"
-                    className="w-full md:w-80 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
+                    className="w-full md:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black/10"
                 />
             </div>
 
+            {/* ✅ Table complète */}
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 text-sm">
                     <thead>
                     <tr className="bg-gray-50">
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase">Email</th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase">Prénom</th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase">Nom</th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase">Naissance</th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase">Newsletter</th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase">Création</th>
+                        <Th>Email</Th>
+                        <Th>Prénom</Th>
+                        <Th>Nom</Th>
+                        <Th>Naissance</Th>
+                        <Th>Newsletter</Th>
+                        <Th>Rôle</Th>
+                        <Th>Pointure</Th>
+                        <Th>Adresse</Th>
+                        <Th>Ville</Th>
+                        <Th>Code postal</Th>
+                        <Th>Pays</Th>
+                        <Th>Création</Th>
                     </tr>
                     </thead>
                     <tbody>
                     {filtered.map((u) => (
                         <tr key={u.id} className="hover:bg-gray-50 transition">
-                            <td className="px-3 py-2 font-semibold break-all truncate max-w-[160px]">
-                                {u.email}
-                            </td>
-                            <td className="px-3 py-2 break-all truncate max-w-[90px]">{u.prenom}</td>
-                            <td className="px-3 py-2 break-all truncate max-w-[90px]">{u.nom}</td>
-                            <td className="px-3 py-2 break-all truncate max-w-[70px]">
-                                {u.dob ? new Date(u.dob).toLocaleDateString("fr-FR") : ""}
-                            </td>
-                            <td className="px-3 py-2">{u.newsletter ? "Oui" : "Non"}</td>
-                            <td className="px-3 py-2">
-                                {u.created_at ? new Date(u.created_at).toLocaleDateString("fr-FR") : ""}
-                            </td>
+                            <Td>{u.email}</Td>
+                            <Td>{u.prenom}</Td>
+                            <Td>{u.nom}</Td>
+                            <Td>{u.dob ? new Date(u.dob).toLocaleDateString("fr-FR") : ""}</Td>
+                            <Td>{u.newsletter ? "Oui" : "Non"}</Td>
+                            <Td>{u.role ?? ""}</Td>
+                            <Td>{u.pointure ?? ""}</Td>
+                            <Td className="max-w-[150px] truncate">{u.adresse ?? ""}</Td>
+                            <Td>{u.ville ?? ""}</Td>
+                            <Td>{u.code_postal ?? ""}</Td>
+                            <Td>{u.pays ?? ""}</Td>
+                            <Td>{u.created_at ? new Date(u.created_at).toLocaleDateString("fr-FR") : ""}</Td>
                         </tr>
                     ))}
                     {filtered.length === 0 && (
                         <tr>
-                            <td
-                                className="px-3 py-6 text-center text-sm text-gray-500"
-                                colSpan={6}
-                            >
+                            <td colSpan={12} className="px-3 py-6 text-center text-gray-500">
                                 Aucun utilisateur trouvé.
                             </td>
                         </tr>
@@ -83,5 +100,19 @@ export default function UsersTable() {
                 </table>
             </div>
         </div>
+    );
+}
+
+/* Helpers pour en-têtes / cellules */
+function Th({ children }: { children: React.ReactNode }) {
+    return (
+        <th className="px-3 py-2 text-left text-xs font-medium text-gray-600 uppercase whitespace-nowrap">
+            {children}
+        </th>
+    );
+}
+function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+    return (
+        <td className={`px-3 py-2 break-all truncate max-w-[120px] ${className}`}>{children}</td>
     );
 }
