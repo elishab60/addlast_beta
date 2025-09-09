@@ -41,7 +41,7 @@ export default function Footer() {
                     {/* Navigation */}
                     <nav className="flex flex-wrap justify-center gap-6 text-sm">
                         {[
-                            { href: "/catalogue", label: "Catalogue" },
+                            { href: "/products", label: "Catalogue" },
                             { href: "/votes", label: "Votes" },
                             { href: "/precommandes", label: "Précommandes" },
                             { href: "/communaute", label: "Communauté" },

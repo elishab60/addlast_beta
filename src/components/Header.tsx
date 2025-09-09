@@ -20,7 +20,7 @@ import type { User } from "@supabase/supabase-js"
 
 const navigation = [
     { name: "Catalogue", href: "/products" },
-    { name: "Votes", href: "/wishlist" },
+    { name: "Votes", href: "/votes" },
     { name: "Précommandes", href: "/precommandes" },
     { name: "Communauté", href: "/communaute" },
     { name: "À propos", href: "/a-propos" },
@@ -151,7 +151,7 @@ export default function Header() {
                     )}
 
                     {/* Likes */}
-                    <Link href="/likes">
+                    <Link href="/wishlist">
                         <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black">
                             <Heart className="w-5 h-5" />
                         </Button>
