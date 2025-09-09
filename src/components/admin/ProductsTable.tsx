@@ -17,6 +17,7 @@ type Product = {
     stock: number | null;
     goal_likes: number | null;
     images: string[] | null;
+    description: string | null; // ✅ ajouté pour matcher ProductEditModal
     created_at?: string | null;
 };
 
@@ -28,7 +29,9 @@ export default function ProductsTable() {
     const fetchProducts = async () => {
         const { data, error } = await supabase
             .from("products")
-            .select("*")
+            .select(
+                "id,title,brand,model,price,sizes,colors,stock,goal_likes,images,description,created_at"
+            )
             .order("created_at", { ascending: false });
 
         if (error) {
@@ -36,7 +39,7 @@ export default function ProductsTable() {
             setProducts([]);
             return;
         }
-        setProducts(data ?? []);
+        setProducts((data ?? []) as Product[]);
     };
 
     useEffect(() => {
@@ -153,7 +156,7 @@ export default function ProductsTable() {
             {/* Modals */}
             {editing && (
                 <ProductEditModal
-                    product={editing}
+                    product={editing} // ✅ maintenant conforme (inclut description)
                     onClose={() => {
                         setEditing(null);
                         fetchProducts();
