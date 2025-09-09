@@ -1,10 +1,27 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Profile } from "@/types"; // ✅ interface à jour
+import type { Profile } from "@/types"; // ton interface existante
+
+// 🔧 On étend localement le type pour les champs utilisés ici
+type ProfileUI = Profile & {
+    role?: string | null;
+    pointure?: string | number | null;
+    newsletter?: boolean | null;
+    dob?: string | Date | null;
+    adresse?: string | null;
+    ville?: string | null;
+    code_postal?: string | null;
+    pays?: string | null;
+    created_at?: string | Date | null;
+    prenom?: string | null;
+    nom?: string | null;
+    email?: string | null;
+    id: string;
+};
 
 export default function UsersTable() {
-    const [users, setUsers] = useState<Profile[]>([]);
+    const [users, setUsers] = useState<ProfileUI[]>([]);
     const [search, setSearch] = useState<string>("");
     const [filterNewsletter, setFilterNewsletter] = useState<"all" | "yes" | "no">("all");
     const [filterPointure, setFilterPointure] = useState<string>("");
@@ -12,12 +29,19 @@ export default function UsersTable() {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const { data, error } = await supabase.from("profiles").select("*");
+            const { data, error } = await supabase
+                .from("profiles")
+                // ✅ on récupère *explicitement* les colonnes qu'on utilise
+                .select(`
+          id, email, prenom, nom, dob, newsletter, role, pointure,
+          adresse, ville, code_postal, pays, created_at
+        `);
+
             if (error) {
                 console.error(error);
                 return;
             }
-            setUsers(data ?? []);
+            setUsers((data as ProfileUI[]) ?? []);
         };
         fetchUsers();
     }, []);
@@ -25,24 +49,24 @@ export default function UsersTable() {
     const filtered = users.filter((u) => {
         const matchesSearch =
             !search ||
-            u.email?.toLowerCase().includes(search.toLowerCase()) ||
-            u.prenom?.toLowerCase().includes(search.toLowerCase()) ||
-            u.nom?.toLowerCase().includes(search.toLowerCase());
+            (u.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
+            (u.prenom ?? "").toLowerCase().includes(search.toLowerCase()) ||
+            (u.nom ?? "").toLowerCase().includes(search.toLowerCase());
 
         const matchesNewsletter =
             filterNewsletter === "all" ||
-            (filterNewsletter === "yes" && u.newsletter) ||
+            (filterNewsletter === "yes" && !!u.newsletter) ||
             (filterNewsletter === "no" && !u.newsletter);
 
-        const matchesPointure = !filterPointure || u.pointure === filterPointure;
-        const matchesRole = !filterRole || u.role === filterRole;
+        const matchesPointure = !filterPointure || String(u.pointure ?? "") === filterPointure;
+        const matchesRole = !filterRole || (u.role ?? "") === filterRole;
 
         return matchesSearch && matchesNewsletter && matchesPointure && matchesRole;
     });
 
     return (
         <div className="w-full bg-white rounded-xl shadow">
-            {/* ✅ Toolbar recherche + filtres */}
+            {/* ✅ Toolbar recherche (tu pourras ajouter les filtres ici si tu veux les UI) */}
             <div className="p-3 border-b border-gray-200 flex flex-col md:flex-row gap-3 md:items-center justify-between">
                 <input
                     type="text"
@@ -75,10 +99,10 @@ export default function UsersTable() {
                     <tbody>
                     {filtered.map((u) => (
                         <tr key={u.id} className="hover:bg-gray-50 transition">
-                            <Td>{u.email}</Td>
-                            <Td>{u.prenom}</Td>
-                            <Td>{u.nom}</Td>
-                            <Td>{u.dob ? new Date(u.dob).toLocaleDateString("fr-FR") : ""}</Td>
+                            <Td>{u.email ?? ""}</Td>
+                            <Td>{u.prenom ?? ""}</Td>
+                            <Td>{u.nom ?? ""}</Td>
+                            <Td>{u.dob ? new Date(u.dob as any).toLocaleDateString("fr-FR") : ""}</Td>
                             <Td>{u.newsletter ? "Oui" : "Non"}</Td>
                             <Td>{u.role ?? ""}</Td>
                             <Td>{u.pointure ?? ""}</Td>
@@ -86,7 +110,7 @@ export default function UsersTable() {
                             <Td>{u.ville ?? ""}</Td>
                             <Td>{u.code_postal ?? ""}</Td>
                             <Td>{u.pays ?? ""}</Td>
-                            <Td>{u.created_at ? new Date(u.created_at).toLocaleDateString("fr-FR") : ""}</Td>
+                            <Td>{u.created_at ? new Date(u.created_at as any).toLocaleDateString("fr-FR") : ""}</Td>
                         </tr>
                     ))}
                     {filtered.length === 0 && (
@@ -112,7 +136,5 @@ function Th({ children }: { children: React.ReactNode }) {
     );
 }
 function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-    return (
-        <td className={`px-3 py-2 break-all truncate max-w-[120px] ${className}`}>{children}</td>
-    );
+    return <td className={`px-3 py-2 break-all truncate max-w-[120px] ${className}`}>{children}</td>;
 }
