@@ -23,6 +23,16 @@ const InstagramIcon = ({ className }: { className?: string }) => (
     </svg>
 )
 
+declare global {
+    interface Window {
+        instgrm?: {
+            Embeds: {
+                process: () => void
+            }
+        }
+    }
+}
+
 // --- Embeds Instagram ---
 const instagramPosts = [
     "https://www.instagram.com/reel/DKaWOYTsCtY/",
@@ -41,7 +51,7 @@ function InstagramEmbed({ url }: { url: string }) {
             s.async = true
             document.body.appendChild(s)
         } else {
-            ;(window as any)?.instgrm?.Embeds?.process()
+            window.instgrm?.Embeds?.process()
         }
     }, [url])
 
