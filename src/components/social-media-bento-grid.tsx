@@ -1,56 +1,9 @@
 "use client"
 
+import { useEffect } from "react"
+import Link from "next/link"
 import { Card } from "@/components/ui/card"
-import { Music, Play } from "lucide-react"
-import { cn } from "@/lib/utils"
 
-interface InstagramPost {
-    id: string
-    title: string
-    thumbnail: string
-    isReel?: boolean
-    url: string
-}
-
-const mockInstagramPosts: InstagramPost[] = [
-    {
-        id: "1",
-        title: 'Nouvelle collection Air Jordan 4 "Black Cat"',
-        thumbnail: "/placeholder.svg?height=400&width=400",
-        url: "#",
-    },
-    {
-        id: "2",
-        title: 'Nike Dunk Low "Panda" unboxing',
-        thumbnail: "/placeholder.svg?height=400&width=400",
-        url: "#",
-    },
-    {
-        id: "3",
-        title: "Comment nettoyer ses sneakers blanches",
-        thumbnail: "/placeholder.svg?height=600&width=400",
-        isReel: true,
-        url: "#",
-    },
-    {
-        id: "4",
-        title: 'Adidas Yeezy 350 V2 "Zebra"',
-        thumbnail: "/placeholder.svg?height=400&width=400",
-        url: "#",
-    },
-    {
-        id: "5",
-        title: 'New Balance 550 "White Green"',
-        thumbnail: "/placeholder.svg?height=400&width=400",
-        url: "#",
-    },
-    {
-        id: "6",
-        title: "Travis Scott Jordan collaboration",
-        thumbnail: "/placeholder.svg?height=400&width=400",
-        url: "#",
-    },
-]
 
 const TikTokIcon = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor">
@@ -70,102 +23,83 @@ const InstagramIcon = ({ className }: { className?: string }) => (
     </svg>
 )
 
-const InstagramPostCard = ({ post }: { post: InstagramPost }) => {
+// --- Embeds Instagram ---
+const instagramPosts = [
+    "https://www.instagram.com/reel/DKaWOYTsCtY/",
+    "https://www.instagram.com/reel/DMlFarZqO3H/",
+    "https://www.instagram.com/p/DObXFNakzs4/",
+]
+
+function InstagramEmbed({ url }: { url: string }) {
+    useEffect(() => {
+        const existing = document.querySelector<HTMLScriptElement>(
+            'script[src="https://www.instagram.com/embed.js"]'
+        )
+        if (!existing) {
+            const s = document.createElement("script")
+            s.src = "https://www.instagram.com/embed.js"
+            s.async = true
+            document.body.appendChild(s)
+        } else {
+            ;(window as any)?.instgrm?.Embeds?.process()
+        }
+    }, [url])
+
     return (
-        <Card
-            className={cn(
-                "group relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-gray-200 bg-white",
-                post.isReel ? "aspect-[3/4]" : "aspect-square",
-            )}
+        <blockquote
+            className="instagram-media"
+            data-instgrm-permalink={url}
+            data-instgrm-version="14"
+            data-instgrm-captioned
+            style={{ background: "#fff", border: 0, borderRadius: 12, margin: 0, width: "100%" }}
         >
-            <div className="relative w-full h-full bg-black">
-                <img
-                    src={post.thumbnail || "/placeholder.svg"}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 grayscale"
-                />
-
-                {/* Dark overlay for text contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
-                {/* Reel indicator */}
-                {post.isReel && (
-                    <div className="absolute top-3 right-3 bg-white rounded-full p-2">
-                        <Music className="w-4 h-4 text-black" />
-                    </div>
-                )}
-
-                {/* Text container with solid dark background */}
-                <div className="absolute bottom-0 left-0 right-0 bg-black/95 p-4">
-                    <p className="text-sm font-medium text-white text-balance leading-tight">{post.title}</p>
-                </div>
-            </div>
-        </Card>
+            <a href={url} target="_blank" rel="noreferrer">
+                &nbsp;
+            </a>
+        </blockquote>
     )
 }
 
 export default function SocialMediaBentoGrid() {
     return (
         <section className="w-full max-w-6xl mx-auto px-4 py-12 bg-white">
+            {/* Header Réseaux */}
             <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-black mb-8">Nous suivre sur les réseaux</h2>
 
                 <div className="flex justify-center items-center gap-8 mb-12">
-                    <div className="text-center group">
-                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-gray-800 cursor-pointer">
+                    <Link href="https://www.tiktok.com/@add_last" target="_blank" className="text-center group">
+                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
                             <TikTokIcon className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-black transition-colors group-hover:text-gray-600">
-                            @add_last
-                        </p>
+                        <p className="text-sm font-medium text-black group-hover:text-gray-600">@add_last</p>
                         <p className="text-xs text-gray-600">TikTok</p>
-                    </div>
+                    </Link>
 
-                    <div className="text-center group">
-                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-gray-800 cursor-pointer">
+                    <Link
+                        href="https://www.instagram.com/add_last?utm_source=ig_web_button_share_sheet&igsh=MXd5ZjBncm5jaWxz"
+                        target="_blank"
+                        className="text-center group"
+                    >
+                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
                             <InstagramIcon className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-black transition-colors group-hover:text-gray-600">@add_last</p>
+                        <p className="text-sm font-medium text-black group-hover:text-gray-600">@add_last</p>
                         <p className="text-xs text-gray-600">Instagram</p>
-                    </div>
+                    </Link>
 
-                    <div className="text-center group">
-                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-gray-800 cursor-pointer">
+                    <Link href="https://www.youtube.com/@add-last" target="_blank" className="text-center group">
+                        <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
                             <YouTubeIcon className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-black transition-colors group-hover:text-gray-600">@add-last</p>
+                        <p className="text-sm font-medium text-black group-hover:text-gray-600">@add-last</p>
                         <p className="text-xs text-gray-600">YouTube</p>
-                    </div>
+                    </Link>
                 </div>
             </div>
 
-            <div className="text-center mb-12">
-                <h3 className="text-2xl font-bold text-black mb-6">Notre podcast</h3>
-                <div className="max-w-2xl mx-auto">
-                    <div className="bg-gray-100 rounded-t-lg p-3 flex items-center gap-2">
-                        <div className="flex gap-2">
-                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        </div>
-                        <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-600 text-left">
-                            youtube.com/watch?v=addlast-podcast
-                        </div>
-                    </div>
-                    <div className="bg-black rounded-b-lg aspect-video flex items-center justify-center group cursor-pointer transition-all duration-300 hover:bg-gray-800">
-                        <div className="text-center">
-                            <div
-                                className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
-                                <Play className="w-8 h-8 text-white ml-1"/>
-                            </div>
-                            <p className="text-white font-medium">Addlast Podcast - Épisode 1</p>
-                            <p className="text-gray-300 text-sm">{"L'histoire des sneakers iconiques"}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mb-8">
+            {/* Bloc Instagram : 3 posts alignés */}
+            <div className="max-w-5xl mx-auto">
                 <div className="text-center mb-6">
                     <div className="inline-flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
@@ -173,28 +107,19 @@ export default function SocialMediaBentoGrid() {
                         </div>
                         <div className="text-left">
                             <h3 className="text-xl font-bold text-black">@add_last</h3>
-                            <p className="text-sm text-gray-600">Nous suivre sur Instagram</p>
+                            <p className="text-sm text-gray-600">Dernières publications</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex gap-4 max-w-4xl mx-auto">
-                    {/* Left side: 2x2 grid of square posts */}
-                    <div className="flex-1 grid grid-cols-2 gap-3">
-                        {mockInstagramPosts.slice(0, 4).map((post) => (
-                            <InstagramPostCard key={post.id} post={{ ...post, isReel: false }} />
-                        ))}
-                    </div>
-
-                    {/* Right side: Single vertical reel */}
-                    <div className="w-48">
-                        <InstagramPostCard post={mockInstagramPosts[2]} />
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {instagramPosts.map((url) => (
+                        <Card key={url} className="p-0 overflow-hidden">
+                            <InstagramEmbed url={url} />
+                        </Card>
+                    ))}
                 </div>
             </div>
         </section>
     )
 }
-//https://www.tiktok.com/@add_last
-//https://www.instagram.com/add_last/
-//https://www.youtube.com/@add-last

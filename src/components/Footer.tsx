@@ -67,25 +67,36 @@ export default function Footer() {
                             className="hover:text-black transition-all duration-300 hover:scale-105 relative group"
                         >
                             Mentions légales
-                            <div className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
+                            <div
+                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
                         </a>
                         <a
                             href="/confidentialite"
                             className="hover:text-black transition-all duration-300 hover:scale-105 relative group"
                         >
                             Confidentialité
-                            <div className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
+                            <div
+                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
                         </a>
-                        <a href="/cgv" className="hover:text-black transition-all duration-300 hover:scale-105 relative group">
+                        <a href="/cgv"
+                           className="hover:text-black transition-all duration-300 hover:scale-105 relative group">
                             CGV
-                            <div className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
+                            <div
+                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
+                        </a>
+                        <a href="/cgu"
+                           className="hover:text-black transition-all duration-300 hover:scale-105 relative group">
+                            CGU
+                            <div
+                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
                         </a>
                     </div>
 
                     {/* Copyright */}
                     <div className="relative">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-px bg-gradient-to-r from-transparent via-black to-transparent animate-pulse"></div>
+                            <div
+                                className="w-8 h-px bg-gradient-to-r from-transparent via-black to-transparent animate-pulse"></div>
                             <p className="text-xs text-gray-600 text-center transition-all duration-300 hover:text-black">
                                 © 2025 addlast. Tous droits réservés.
                             </p>

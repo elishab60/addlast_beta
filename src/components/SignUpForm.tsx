@@ -15,6 +15,7 @@ export default function SignUpForm() {
     const [dob, setDob] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState(""); // ✅ nouveau champ
     const [newsletter, setNewsletter] = useState(false);
     const [acceptCgu, setAcceptCgu] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -25,6 +26,11 @@ export default function SignUpForm() {
             toast.error("Vous devez accepter les CGU pour créer un compte.");
             return;
         }
+        if (password !== confirmPassword) {
+            toast.error("Les mots de passe ne correspondent pas.");
+            return;
+        }
+
         setLoading(true);
 
         // Création compte auth
@@ -40,7 +46,7 @@ export default function SignUpForm() {
         }
 
         // Insertion profil dans la table "profiles"
-        const user = data.user ?? data.session?.user; // Pour compatibilité
+        const user = data.user ?? data.session?.user;
         if (user) {
             const { error: profileError } = await supabase.from("profiles").upsert([
                 {
@@ -69,18 +75,26 @@ export default function SignUpForm() {
     return (
         <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95">
             <CardHeader className="pt-10 pb-2 flex flex-col items-center gap-2">
-                <span className="text-3xl font-black tracking-tight uppercase text-black select-none">addlast</span>
-                <CardTitle className="text-center text-2xl font-extrabold tracking-tight">Inscription</CardTitle>
+        <span className="text-3xl font-black tracking-tight uppercase text-black select-none">
+          addlast
+        </span>
+                <CardTitle className="text-center text-2xl font-extrabold tracking-tight">
+                    Inscription
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                <form className="flex flex-col gap-4 mt-4" onSubmit={handleSignUp} autoComplete="on">
+                <form
+                    className="flex flex-col gap-4 mt-4"
+                    onSubmit={handleSignUp}
+                    autoComplete="on"
+                >
                     <div className="flex gap-3">
                         <Input
                             type="text"
                             placeholder="Prénom"
                             autoComplete="given-name"
                             value={prenom}
-                            onChange={e => setPrenom(e.target.value)}
+                            onChange={(e) => setPrenom(e.target.value)}
                             required
                         />
                         <Input
@@ -88,23 +102,23 @@ export default function SignUpForm() {
                             placeholder="Nom"
                             autoComplete="family-name"
                             value={nom}
-                            onChange={e => setNom(e.target.value)}
+                            onChange={(e) => setNom(e.target.value)}
                             required
                         />
                     </div>
                     <Input
                         type="date"
-                        placeholder="Date de naissance"
+                        placeholder="Date de naissance (JJ/MM/AAAA)" // ✅ placeholder clair
                         value={dob}
-                        onChange={e => setDob(e.target.value)}
+                        onChange={(e) => setDob(e.target.value)}
                         required
                     />
                     <Input
                         type="email"
-                        placeholder="Email"
+                        placeholder="Adresse email"
                         autoComplete="email"
                         value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                     <Input
@@ -112,15 +126,25 @@ export default function SignUpForm() {
                         placeholder="Mot de passe"
                         autoComplete="new-password"
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                     />
+                    {/* ✅ champ confirmation du mot de passe */}
+                    <Input
+                        type="password"
+                        placeholder="Confirmer le mot de passe"
+                        autoComplete="new-password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                    />
+
                     <div className="flex items-center gap-2">
                         <input
                             id="newsletter"
                             type="checkbox"
                             checked={newsletter}
-                            onChange={e => setNewsletter(e.target.checked)}
+                            onChange={(e) => setNewsletter(e.target.checked)}
                             className="w-4 h-4 rounded transition focus:ring-2 focus:ring-black"
                         />
                         <label htmlFor="newsletter" className="text-sm">
@@ -132,12 +156,16 @@ export default function SignUpForm() {
                             id="cgu"
                             type="checkbox"
                             checked={acceptCgu}
-                            onChange={e => setAcceptCgu(e.target.checked)}
+                            onChange={(e) => setAcceptCgu(e.target.checked)}
                             className="w-4 h-4 rounded transition focus:ring-2 focus:ring-black"
                             required
                         />
                         <label htmlFor="cgu" className="text-sm">
-                            J’accepte les <a href="/cgu" target="_blank" className="underline">CGU</a>.
+                            J’accepte les{" "}
+                            <a href="/cgu" target="_blank" className="underline">
+                                CGU
+                            </a>
+                            .
                         </label>
                     </div>
                     <Button
@@ -150,7 +178,10 @@ export default function SignUpForm() {
                 </form>
                 <div className="text-sm mt-8 text-center">
                     Déjà un compte ?{" "}
-                    <Link href="/sign-in" className="text-black underline font-semibold hover:no-underline hover:text-neutral-700 transition">
+                    <Link
+                        href="/sign-in"
+                        className="text-black underline font-semibold hover:no-underline hover:text-neutral-700 transition"
+                    >
                         Se connecter
                     </Link>
                 </div>
