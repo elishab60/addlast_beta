@@ -1,10 +1,26 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## 🚀 État du Projet
+
+✅ **PROJET DÉPLOYABLE** - Toutes les corrections critiques ont été appliquées.
+
+Voir le [Guide de Déploiement](./DEPLOYMENT_GUIDE.md) pour les instructions complètes.
+
 ## Getting Started
 
-First, run the development server:
+First, configure your environment variables:
 
 ```bash
+# Copy environment template
+cp .env.example .env.local
+
+# Edit .env.local with your Supabase credentials
+```
+
+Then, run the development server:
+
+```bash
+npm install
 npm run dev
 # or
 yarn dev
@@ -18,7 +34,24 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This project uses system fonts for better build compatibility and performance.
+
+## 📁 Project Structure
+
+- `/src/app` - Next.js App Router pages
+- `/src/components` - Reusable React components  
+- `/src/lib` - Utility functions and Supabase client
+- `/src/types` - TypeScript type definitions
+- `/src/context` - React context providers
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15.5.3
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Database**: Supabase
+- **Animation**: Framer Motion
 
 ## Learn More
 
