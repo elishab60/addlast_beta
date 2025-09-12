@@ -22,7 +22,6 @@ const navigation = [
     { name: "Catalogue", href: "/products" },
     { name: "Votes", href: "/votes" },
     { name: "Précommandes", href: "/precommandes" },
-    { name: "Communauté", href: "/communaute" },
     { name: "À propos", href: "/a-propos" },
 ];
 
