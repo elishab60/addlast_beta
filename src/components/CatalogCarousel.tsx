@@ -213,7 +213,12 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                     </div>
 
                     {/* Bandeau d'état sous la progressbar */}
-                    <StatusBand status={product.status} />
+                    <StatusBand
+                        status={product.status}
+                        votesCount={votesCount}
+                        goal_likes={product.goal_likes}
+                    />
+
                 </CardContent>
 
                 {/* Modal limite de votes */}
@@ -241,14 +246,23 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
 
 /* -------------------- Bandeau d'état (sous la progressbar) -------------------- */
 
-function StatusBand({ status }: { status: Product["status"] }) {
+function StatusBand({ status, votesCount, goal_likes }: {
+    status: Product["status"],
+    votesCount: number,
+    goal_likes: number
+}) {
     const base =
         "w-full text-center text-xs font-medium tracking-wider uppercase rounded-md py-2 border"
+
+    // Détermine si quota atteint
+    const quotaAtteint = votesCount >= (goal_likes || 1)
+
+    if (quotaAtteint) {
+        return <div className={`${base} bg-white text-black border-black`}>En précommande</div>
+    }
     if (status === "En vote") {
         return <div className={`${base} bg-black text-white border-black`}>En vote</div>
     }
-    if (status === "En précommande") {
-        return <div className={`${base} bg-white text-black border-black`}>En précommande</div>
-    }
     return <div className={`${base} bg-neutral-100 text-neutral-600 border-neutral-300`}>Rupture</div>
 }
+

@@ -22,6 +22,7 @@ type Product = {
     sizes: string[] | null;
     colors: string[] | null;
     images: string[] | null;
+    goal_likes: number | null;
 };
 
 type ProductEditModalProps = {
@@ -41,7 +42,10 @@ export default function ProductEditModal({
     const [model, setModel] = useState<string>(product.model || "");
     const [price, setPrice] = useState<string>(String(product.price ?? ""));
     const [stock, setStock] = useState<number>(product.stock ?? 0);
-    const [description, setDescription] = useState<string>(product.description || "");
+    const [description, setDescription] = useState<string>(
+        product.description || ""
+    );
+    const [goalLikes, setGoalLikes] = useState<number>(product.goal_likes ?? 100);
 
     // Tailles dynamiques
     const [sizes, setSizes] = useState<string[]>(product.sizes || []);
@@ -59,12 +63,12 @@ export default function ProductEditModal({
     const removeColor = (idx: number) =>
         setColors((prev) => prev.filter((_, i) => i !== idx));
 
-    // Images existantes + nouvelles (drag & drop, remove, upload)
+    // Images
     const [images, setImages] = useState<string[]>(product.images || []);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // Drag & drop images (string[] + File[])
+    // Drag & drop images
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
         const items = [...images];
@@ -73,7 +77,6 @@ export default function ProductEditModal({
         setImages(items);
     };
 
-    // Suppression image (juste de la liste, pas du bucket)
     const handleRemoveImage = (idx: number) =>
         setImages((prev) => prev.filter((_, i) => i !== idx));
 
@@ -81,7 +84,7 @@ export default function ProductEditModal({
         e.preventDefault();
         setLoading(true);
 
-        // Upload les nouveaux fichiers avant update
+        // Upload des nouvelles images
         if (newImages.length > 0) {
             const urls = await Promise.all(
                 newImages.map(async (file) => {
@@ -118,6 +121,7 @@ export default function ProductEditModal({
                 image_url: images[0] || "",
                 images,
                 description,
+                goal_likes: goalLikes,
                 updated_at: new Date().toISOString(),
             })
             .eq("id", product.id);
@@ -183,6 +187,19 @@ export default function ProductEditModal({
                     />
                 </div>
 
+                {/* Objectif Likes */}
+                <div className="mb-4">
+                    <label className="block mb-1 font-semibold">Objectif de likes</label>
+                    <Input
+                        type="number"
+                        placeholder="Objectif likes"
+                        value={goalLikes}
+                        min={1}
+                        onChange={(e) => setGoalLikes(Number(e.target.value))}
+                        required
+                    />
+                </div>
+
                 {/* Tailles dynamiques */}
                 <div className="mb-4">
                     <label className="block mb-1 font-semibold">Tailles disponibles</label>
@@ -206,7 +223,12 @@ export default function ProductEditModal({
                                 </Button>
                             </div>
                         ))}
-                        <Button type="button" variant="outline" size="sm" onClick={addSize}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addSize}
+                        >
                             Ajouter une taille
                         </Button>
                     </div>
@@ -235,7 +257,12 @@ export default function ProductEditModal({
                                 </Button>
                             </div>
                         ))}
-                        <Button type="button" variant="outline" size="sm" onClick={addColor}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={addColor}
+                        >
                             Ajouter une couleur
                         </Button>
                     </div>
@@ -249,7 +276,7 @@ export default function ProductEditModal({
                     />
                 </div>
 
-                {/* Upload et drag d'images */}
+                {/* Upload & drag images */}
                 <div className="mb-4">
                     <label className="block mb-1 font-semibold">
                         Images du produit (glisser pour réordonner, cliquer pour retirer)
@@ -258,7 +285,9 @@ export default function ProductEditModal({
                         type="file"
                         multiple
                         accept="image/*"
-                        onChange={(e) => setNewImages(e.target.files ? Array.from(e.target.files) : [])}
+                        onChange={(e) =>
+                            setNewImages(e.target.files ? Array.from(e.target.files) : [])
+                        }
                     />
                     <DragDropContext onDragEnd={onDragEnd}>
                         <Droppable droppableId="images" direction="horizontal">

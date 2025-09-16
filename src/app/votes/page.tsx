@@ -51,15 +51,15 @@ export default function VotesPage() {
                     </p>
                     <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4" />
+                            <Users className="w-4 h-4"/>
                             <span>Communauté active</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Heart className="w-4 h-4" />
+                            <Heart className="w-4 h-4"/>
                             <span>2 votes maximum</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
+                            <Clock className="w-4 h-4"/>
                             <span>Production sur quota</span>
                         </div>
                     </div>
@@ -70,12 +70,12 @@ export default function VotesPage() {
             <section className="py-16 px-4">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex items-center gap-3 mb-12">
-                        <Trophy className="w-8 h-8" />
+                        <Trophy className="w-8 h-8"/>
                         <h2 className="text-3xl font-bold">Classement des votes</h2>
                     </div>
                     <div className="grid md:grid-cols-3 gap-8">
                         {products.slice(0, 3).map((p) => (
-                            <VoteCard key={p.id} product={p} user={user} />
+                            <VoteCard key={p.id} product={p} user={user}/>
                         ))}
                     </div>
                 </div>
@@ -87,11 +87,23 @@ export default function VotesPage() {
                     <h2 className="text-3xl font-bold mb-12">Toutes les sneakers</h2>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {products.map((p) => (
-                            <VoteCard key={p.id} product={p} user={user} small />
+                            <VoteCard key={p.id} product={p} user={user} small/>
                         ))}
                     </div>
                 </div>
             </section>
+            {/* CTA vers les précommandes */}
+            <div className="mt-10 flex justify-center">
+                <Link href="/precommandes">
+                    <Button
+                        className="bg-black text-white hover:bg-white hover:text-black border border-black px-6 py-3 text-lg">
+                        Voir les précommandes disponibles
+                    </Button>
+                </Link>
+            </div>
+            <br/>
+            <br/>
+            <br/>
             <Footer/>
         </div>
     )
@@ -207,5 +219,6 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                 </CardContent>
             </Card>
         </Link>
+
     )
 }
