@@ -22,7 +22,7 @@ const navigation = [
     { name: "Catalogue", href: "/products" },
     { name: "Votes", href: "/votes" },
     { name: "Précommandes", href: "/precommandes" },
-    { name: "À propos", href: "/a-propos" },
+
 ];
 
 export default function Header() {
