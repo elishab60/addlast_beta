@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignUpForm() {
     const router = useRouter();
@@ -15,10 +16,14 @@ export default function SignUpForm() {
     const [dob, setDob] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState(""); // ✅ nouveau champ
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [newsletter, setNewsletter] = useState(false);
     const [acceptCgu, setAcceptCgu] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // 👀 nouveaux états pour afficher/masquer
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,11 +38,7 @@ export default function SignUpForm() {
 
         setLoading(true);
 
-        // Création compte auth
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-        });
+        const { data, error } = await supabase.auth.signUp({ email, password });
 
         if (error) {
             toast.error("Erreur lors de la création du compte : " + error.message);
@@ -45,7 +46,6 @@ export default function SignUpForm() {
             return;
         }
 
-        // Insertion profil dans la table "profiles"
         const user = data.user ?? data.session?.user;
         if (user) {
             const { error: profileError } = await supabase.from("profiles").upsert([
@@ -75,9 +75,9 @@ export default function SignUpForm() {
     return (
         <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95">
             <CardHeader className="pt-10 pb-2 flex flex-col items-center gap-2">
-        <span className="text-3xl font-black tracking-tight uppercase text-black select-none">
-          addlast
-        </span>
+                <span className="text-3xl font-black tracking-tight uppercase text-black select-none">
+                    addlast
+                </span>
                 <CardTitle className="text-center text-2xl font-extrabold tracking-tight">
                     Inscription
                 </CardTitle>
@@ -108,7 +108,7 @@ export default function SignUpForm() {
                     </div>
                     <Input
                         type="date"
-                        placeholder="Date de naissance (JJ/MM/AAAA)" // ✅ placeholder clair
+                        placeholder="Date de naissance (JJ/MM/AAAA)"
                         value={dob}
                         onChange={(e) => setDob(e.target.value)}
                         required
@@ -121,23 +121,46 @@ export default function SignUpForm() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
-                    <Input
-                        type="password"
-                        placeholder="Mot de passe"
-                        autoComplete="new-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    {/* ✅ champ confirmation du mot de passe */}
-                    <Input
-                        type="password"
-                        placeholder="Confirmer le mot de passe"
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
+
+                    {/* Mot de passe avec toggle 👇 */}
+                    <div className="relative">
+                        <Input
+                            name="password-signup"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Mot de passe"
+                            autoComplete="new-password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                        >
+                            {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
+                        </button>
+                    </div>
+
+                    {/* Confirmation avec toggle 👇 */}
+                    <div className="relative">
+                        <Input
+                            name="password-signup"
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="Confirmer le mot de passe"
+                            autoComplete="new-password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                        >
+                            {showConfirmPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
+                        </button>
+                    </div>
 
                     <div className="flex items-center gap-2">
                         <input
