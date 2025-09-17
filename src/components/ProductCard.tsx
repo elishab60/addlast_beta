@@ -113,6 +113,9 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
                             src={product.image_url}
                             alt={product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition"
+                            loading="lazy"
+                            width={300}
+                            height={225}
                         />
                     </div>
                     <CardTitle className="text-lg font-semibold truncate">{product.name}</CardTitle>
