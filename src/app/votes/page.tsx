@@ -197,7 +197,9 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                        <span className="font-bold text-xl">{product.price}€</span>
+                        <span className="text-sm font-medium text-neutral-700">
+                            Objectif <span className="font-semibold">{product.goal_likes}</span> likes
+                        </span>
                         <Button
                             variant={userVoted ? "default" : "outline"}
                             disabled={userVoted || loading}
