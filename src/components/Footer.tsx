@@ -44,7 +44,7 @@ export default function Footer() {
                             { href: "/products", label: "Catalogue" },
                             { href: "/votes", label: "Votes" },
                             { href: "/precommandes", label: "Précommandes" },
-                            { href: "/a-propos", label: "À propos" },
+
                         ].map((link, index) => (
                             <a
                                 key={link.href}
