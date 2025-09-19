@@ -55,7 +55,7 @@ export default function VotesPage() {
                         Votez pour vos <span className="italic">sneakers</span> préférées
                     </h1>
                     <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                        Choisissez jusqu’à 2 paires maximum et suivez leur progression vers la précommande.
+                        Like tes sneakers préférées et aide-les à atteindre l’objectif pour passer en précommande.
                     </p>
                     <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function VotesPage() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Heart className="w-4 h-4" />
-                            <span>2 votes maximum</span>
+                            <span>Like tes coups de cœur</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4" />
@@ -161,12 +161,7 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                 if (result.status === 401) {
                     toast.info("Connecte-toi pour voter !")
                 } else if (result.status === 409) {
-                    const message = result.message || "Tu as déjà voté pour cette paire ce mois-ci !"
-                    if (message.toLowerCase().includes("limite")) {
-                        toast.error(message)
-                    } else {
-                        toast.info(message)
-                    }
+                    toast.info(result.message || "Tu as déjà liké cette paire.")
                 } else {
                     toast.error(result.message || "Erreur lors du vote, réessaie.")
                 }
@@ -256,7 +251,7 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                 open={showUnvoteConfirm}
                 onOpenChange={setShowUnvoteConfirm}
                 title="Retirer ton like ?"
-                description="Ce produit quittera ta sélection du mois, mais tu pourras voter à nouveau."
+                description="Ce produit quittera ta sélection, mais tu pourras toujours le reliker plus tard."
                 confirmLabel="Retirer"
                 onConfirm={handleUnvote}
                 confirmLoading={loading}

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Heart } from "lucide-react"
 import { toast } from "sonner"
 import type { User } from "@supabase/supabase-js"
@@ -85,7 +84,6 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [showModal, setShowModal] = useState(false)
     const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
     const userId = user?.id
 
@@ -127,12 +125,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 if (result.status === 401) {
                     toast.info("Connecte-toi pour voter !")
                 } else if (result.status === 409) {
-                    const message = result.message || "Tu as déjà voté pour cette paire ce mois-ci !"
-                    if (message.toLowerCase().includes("limite")) {
-                        setShowModal(true)
-                    } else {
-                        toast.info(message)
-                    }
+                    toast.info(result.message || "Tu as déjà liké cette paire.")
                 } else {
                     toast.error(result.message || "Erreur lors du vote, réessaie.")
                 }
@@ -261,30 +254,11 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 />
             </CardContent>
 
-            {/* Modal limite de votes */}
-            <Dialog open={showModal} onOpenChange={setShowModal}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle>Limite de votes atteinte</DialogTitle>
-                    </DialogHeader>
-                    <div className="py-2 text-sm">
-                        <p>
-                            Tu as déjà voté pour 2 paires différentes ce mois-ci.
-                            <br />
-                            Retente le mois prochain ou retire un vote depuis ton profil.
-                        </p>
-                    </div>
-                    <Button onClick={() => setShowModal(false)} className="mt-2 w-full">
-                        Fermer
-                    </Button>
-                </DialogContent>
-            </Dialog>
-
             <ConfirmDialog
                 open={showUnvoteConfirm}
                 onOpenChange={setShowUnvoteConfirm}
                 title="Retirer ton like ?"
-                description="Cela libère un vote que tu pourras utiliser sur une autre paire."
+                description="Cela retirera le like de cette paire, mais tu pourras toujours revenir la soutenir."
                 confirmLabel="Retirer"
                 onConfirm={handleUnvote}
                 confirmLoading={loading}

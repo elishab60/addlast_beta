@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabaseRoute } from "@/lib/supabaseRoute";
-import { evaluateVoteEligibility, VoteRecord } from "@/lib/voteRules";
-import { getVoteWindowStart } from "@/lib/voteWindow";
 
 export async function POST(request: Request) {
     let productId: string | undefined;
@@ -27,23 +25,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
     }
 
-    const { data: history, error: historyError } = await supabase
+    const { data: existingVote, error: existingError } = await supabase
         .from("votes")
-        .select("product_id, created_at")
-        .eq("user_id", user.id);
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("product_id", productId)
+        .maybeSingle();
 
-    if (historyError) {
-        return NextResponse.json({ message: "Impossible de vérifier tes votes" }, { status: 500 });
+    if (existingError) {
+        return NextResponse.json({ message: "Impossible de vérifier tes likes" }, { status: 500 });
     }
 
-    const evaluation = evaluateVoteEligibility((history as VoteRecord[]) ?? [], productId);
-
-    if (!evaluation.canVote) {
-        const message =
-            evaluation.reason === "duplicate"
-                ? "Tu as déjà voté pour cette paire ce mois-ci !"
-                : "Tu as atteint la limite de 2 votes ce mois-ci.";
-        return NextResponse.json({ message }, { status: 409 });
+    if (existingVote) {
+        return NextResponse.json({ message: "Tu as déjà liké cette paire." }, { status: 409 });
     }
 
     const { error: insertError } = await supabase.from("votes").insert({ user_id: user.id, product_id: productId });
@@ -52,12 +46,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "Erreur lors du vote, réessaie." }, { status: 500 });
     }
 
-    const thirtyDaysAgo = getVoteWindowStart();
     const { count } = await supabase
         .from("votes")
         .select("*", { count: "exact", head: true })
-        .eq("product_id", productId)
-        .gte("created_at", thirtyDaysAgo);
+        .eq("product_id", productId);
 
     return NextResponse.json({ message: "Ton vote a bien été pris en compte !", votes: count ?? 0 });
 }
@@ -71,13 +63,11 @@ export async function GET(request: Request) {
     }
 
     const supabase = supabaseRoute();
-    const windowStart = getVoteWindowStart();
 
     const { count, error: countError } = await supabase
         .from("votes")
         .select("*", { count: "exact", head: true })
-        .eq("product_id", productId)
-        .gte("created_at", windowStart);
+        .eq("product_id", productId);
 
     if (countError) {
         return NextResponse.json({ message: "Impossible de récupérer les votes" }, { status: 500 });
@@ -96,7 +86,6 @@ export async function GET(request: Request) {
             .select("id")
             .eq("user_id", user.id)
             .eq("product_id", productId)
-            .gte("created_at", windowStart)
             .limit(1);
 
         if (userVoteError) {
@@ -136,24 +125,22 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
     }
 
-    const windowStart = getVoteWindowStart();
-    const { data: existingVotes, error: fetchError } = await supabase
+    const { data: existingVote, error: fetchError } = await supabase
         .from("votes")
         .select("id")
         .eq("user_id", user.id)
         .eq("product_id", productId)
-        .gte("created_at", windowStart)
-        .limit(1);
+        .maybeSingle();
 
     if (fetchError) {
         return NextResponse.json({ message: "Impossible de vérifier tes votes" }, { status: 500 });
     }
 
-    if (!existingVotes || existingVotes.length === 0) {
+    if (!existingVote) {
         return NextResponse.json({ message: "Aucun like récent à retirer" }, { status: 404 });
     }
 
-    const voteId = existingVotes[0].id;
+    const voteId = existingVote.id;
     const { error: deleteError } = await supabase.from("votes").delete().eq("id", voteId);
 
     if (deleteError) {
@@ -163,8 +150,7 @@ export async function DELETE(request: Request) {
     const { count } = await supabase
         .from("votes")
         .select("*", { count: "exact", head: true })
-        .eq("product_id", productId)
-        .gte("created_at", windowStart);
+        .eq("product_id", productId);
 
     return NextResponse.json({ message: "Ton like a bien été retiré.", votes: count ?? 0 });
 }
