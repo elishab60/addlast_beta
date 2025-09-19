@@ -52,7 +52,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "Tu as déjà liké cette paire." }, { status: 409 });
     }
 
-    const { error: insertError } = await supabase.from("votes").insert({ user_id: user.id, product_id: productId });
+    const { error: insertError } = await supabase
+        .from("votes")
+        .insert({ user_id: user.id, product_id: productId });
 
     if (insertError) {
         return NextResponse.json({ message: "Erreur lors du vote, réessaie." }, { status: 500 });
@@ -146,7 +148,10 @@ export async function DELETE(request: Request) {
     }
 
     const voteId = existingVote.id;
-    const { error: deleteError } = await supabase.from("votes").delete().eq("id", voteId);
+    const { error: deleteError } = await supabase
+        .from("votes")
+        .delete()
+        .eq("id", voteId);
 
     if (deleteError) {
         return NextResponse.json({ message: "Erreur lors du retrait du like" }, { status: 500 });
