@@ -81,9 +81,9 @@ export default function ProductsPage() {
             <Header />
 
             {/* Hero */}
-            <section className="w-full border-b border-black/10 pt-16 pb-12 px-4 text-center">
+            <section className="w-full border-b border-border pt-16 pb-12 px-4 text-center">
                 <div className="max-w-3xl mx-auto space-y-6">
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+                    <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-accent">
                         Catalogue des Sneakers
                     </h1>
                     <p className="text-lg text-black/70 leading-relaxed">
@@ -92,14 +92,14 @@ export default function ProductsPage() {
                         Pour voter ou précommander, rendez-vous dans les sections{" "}
                         <Link
                             href="/votes"
-                            className="font-medium underline underline-offset-4 hover:text-black transition-colors"
+                            className="font-medium underline underline-offset-4 text-accent hover:text-accent-muted transition-colors"
                         >
                             Votes
                         </Link>{" "}
                         et{" "}
                         <Link
                             href="/precommandes"
-                            className="font-medium underline underline-offset-4 hover:text-black transition-colors"
+                            className="font-medium underline underline-offset-4 text-accent hover:text-accent-muted transition-colors"
                         >
                             Précommandes
                         </Link>.
@@ -117,13 +117,13 @@ export default function ProductsPage() {
                         placeholder="Rechercher une paire…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full lg:w-[300px] border-black/30 transition-all duration-300 focus:ring-2 focus:ring-black/60"
+                        className="w-full lg:w-[300px] border border-border transition-all duration-300 focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent"
                     />
 
                     {/* Selects filtres */}
                     <div className="flex flex-wrap gap-4">
                         <Select onValueChange={(val) => setBrandFilter(val)} value={brandFilter}>
-                            <SelectTrigger className="w-[180px] border-black/30">
+                            <SelectTrigger className="w-[180px] border border-border focus:border-accent">
                                 <SelectValue placeholder="Filtrer par marque" />
                             </SelectTrigger>
                             <SelectContent>
@@ -140,7 +140,7 @@ export default function ProductsPage() {
                             value={modelFilter}
                             disabled={!brandFilter}
                         >
-                            <SelectTrigger className="w-[200px] border-black/30 disabled:opacity-50">
+                            <SelectTrigger className="w-[200px] border border-border disabled:opacity-50 focus:border-accent">
                                 <SelectValue placeholder="Filtrer par modèle" />
                             </SelectTrigger>
                             <SelectContent>
@@ -155,7 +155,7 @@ export default function ProductsPage() {
                         {(brandFilter || modelFilter || search) && (
                             <Button
                                 variant="ghost"
-                                className="flex items-center gap-2 hover:bg-black/5"
+                                className="flex items-center gap-2 text-accent hover:text-accent-muted hover:bg-accent-muted"
                                 onClick={() => {
                                     setBrandFilter("");
                                     setModelFilter("");
@@ -170,11 +170,11 @@ export default function ProductsPage() {
 
                 {/* Grille produits */}
                 {loading ? (
-                    <div className="flex justify-center items-center h-40 text-black/70">
+                    <div className="flex justify-center items-center h-40 text-accent">
                         <Loader2 className="animate-spin mr-2" /> Chargement…
                     </div>
                 ) : filtered.length === 0 ? (
-                    <div className="text-center text-black/60 py-24">
+                    <div className="text-center text-accent py-24">
                         Aucun produit trouvé.
                     </div>
                 ) : (
@@ -186,7 +186,7 @@ export default function ProductsPage() {
                 )}
 
                 {/* CTA proposer une paire */}
-                <div className="text-center space-y-4 pt-12 border-t border-black/10">
+                <div className="text-center space-y-4 pt-12 border-t border-border">
                     <p className="text-black/70">
                         Une paire que vous aimeriez revoir ? Proposez-la, notre équipe
                         analysera vos suggestions pour de futures campagnes.
@@ -194,7 +194,7 @@ export default function ProductsPage() {
                     <Link href="/proposer">
                         <Button
                             size="lg"
-                            className="gap-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all duration-300 px-8 py-3 text-base font-medium tracking-wide"
+                            className="gap-2 bg-black text-white border-2 border-accent transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide"
                         >
                             <PlusCircle size={18} /> Proposer une paire
                         </Button>
@@ -211,7 +211,7 @@ export default function ProductsPage() {
 function ProductCard({ product }: { product: Product }) {
     return (
         <Link href={`/products/${product.id}`} className="block group">
-            <Card className="border border-black/20 bg-white hover:shadow-xl hover:scale-[1.02] transition-transform duration-300">
+            <Card className="border border-border bg-white hover:border-accent hover:shadow-xl hover:scale-[1.02] transition-transform duration-300">
                 <CardHeader className="pb-2">
                     <div className="relative aspect-square overflow-hidden rounded-lg bg-black/5">
                         <img
@@ -220,7 +220,7 @@ function ProductCard({ product }: { product: Product }) {
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                     </div>
-                    <CardTitle className="mt-3 text-lg font-semibold truncate text-black group-hover:text-black/80 transition-colors">
+                    <CardTitle className="mt-3 text-lg font-semibold truncate text-accent group-hover:text-accent-muted transition-colors">
                         {product.title}
                     </CardTitle>
                 </CardHeader>

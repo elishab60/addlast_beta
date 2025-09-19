@@ -14,10 +14,10 @@ export default function Profile({ user }: { user: User | null }) {
 
     if (!user) {
         return (
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border text-center flex flex-col gap-5">
-                <h2 className="text-2xl font-bold mb-3">Bienvenue,</h2>
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-accent text-center flex flex-col gap-5">
+                <h2 className="text-2xl font-bold mb-3 text-accent">Bienvenue,</h2>
                 <div className="text-lg">Aucun utilisateur connecté.</div>
-                <Button className="w-full mt-8" asChild>
+                <Button className="w-full mt-8 bg-black text-white border border-accent hover:bg-accent hover:text-black" asChild>
                     <a href="/sign-in">Se connecter</a>
                 </Button>
             </div>
@@ -25,8 +25,8 @@ export default function Profile({ user }: { user: User | null }) {
     }
 
     return (
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border text-center flex flex-col gap-5">
-            <h2 className="text-2xl font-bold mb-3">Bienvenue,</h2>
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-accent text-center flex flex-col gap-5">
+            <h2 className="text-2xl font-bold mb-3 text-accent">Bienvenue,</h2>
             <div className="text-lg font-semibold">{user.email}</div>
             <Button className="w-full mt-8" variant="destructive" onClick={handleLogout}>
                 Se déconnecter

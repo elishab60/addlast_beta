@@ -2,7 +2,7 @@ export default function HomeHowItWorks() {
     return (
         <section className="py-14 bg-gray-50 border-t border-gray-100">
             <div className="max-w-3xl mx-auto px-4">
-                <h2 className="text-2xl md:text-3xl font-bold mb-7 text-center">Le process d’achat Addlast</h2>
+                <h2 className="text-2xl md:text-3xl font-bold mb-7 text-center text-accent">Le process d’achat Addlast</h2>
                 <ol className="space-y-6 text-lg text-gray-700">
                     <li>
                         <b>1. Vote :</b> Parcours le catalogue et like tes paires préférées.<br/>

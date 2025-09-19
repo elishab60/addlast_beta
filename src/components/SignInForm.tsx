@@ -32,7 +32,7 @@ export default function SignInForm() {
     return (
         <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95">
             <CardHeader className="pt-10 pb-2 flex flex-col items-center gap-2">
-                <span className="text-3xl font-black tracking-tight uppercase text-black select-none">addlast</span>
+                <span className="text-3xl font-black tracking-tight uppercase text-accent select-none">addlast</span>
                 <CardTitle className="text-center text-2xl font-extrabold tracking-tight">Connexion</CardTitle>
             </CardHeader>
             <CardContent>
@@ -58,20 +58,20 @@ export default function SignInForm() {
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-accent-muted"
                         >
                             {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
                         </button>
                     </div>
                     <div className="flex justify-between text-xs mb-1">
                         <span />
-                        <Link href="/forgot-password" className="text-gray-500 hover:text-black hover:underline transition">
+                        <Link href="/forgot-password" className="text-accent hover:text-accent-muted hover:underline transition">
                             Mot de passe oublié ?
                         </Link>
                     </div>
                     <Button
                         type="submit"
-                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl"
+                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl bg-black text-white border border-accent hover:bg-accent hover:text-black"
                         disabled={loading}
                     >
                         {loading ? "Connexion..." : "Se connecter"}
@@ -79,7 +79,7 @@ export default function SignInForm() {
                 </form>
                 <div className="text-sm mt-8 text-center">
                     Pas encore de compte ?{" "}
-                    <Link href="/sign-up" className="text-black underline font-semibold hover:no-underline hover:text-neutral-700 transition">
+                    <Link href="/sign-up" className="text-accent underline font-semibold hover:no-underline hover:text-accent-muted transition">
                         Créer un compte
                     </Link>
                 </div>
