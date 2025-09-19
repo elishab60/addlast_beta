@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Header from "@/components/Header"
@@ -78,22 +78,16 @@ export default function ProductPage() {
         })()
     }, [id])
 
-    useEffect(() => {
-        if (!product) return
-        fetchVotes()
-        if (user) checkUserVote()
-    }, [product, user])
-
-    async function fetchVotes() {
+    const fetchVotes = useCallback(async () => {
         if (!product) return
         const { count } = await supabase
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
         setVotesCount(count || 0)
-    }
+    }, [product])
 
-    async function checkUserVote() {
+    const checkUserVote = useCallback(async () => {
         if (!user || !product) return
         const { data } = await supabase
             .from("votes")
@@ -101,7 +95,13 @@ export default function ProductPage() {
             .eq("user_id", user.id)
             .eq("product_id", product.id)
         setUserVoted(!!(data && data.length))
-    }
+    }, [product, user])
+
+    useEffect(() => {
+        if (!product) return
+        fetchVotes()
+        if (user) checkUserVote()
+    }, [product, user, fetchVotes, checkUserVote])
 
     async function handleVote() {
         if (!user) {
@@ -113,12 +113,29 @@ export default function ProductPage() {
             return
         }
 
-        const { error } = await supabase.from("votes").insert({ user_id: user.id, product_id: product?.id })
-        if (!error) {
-            toast.success("Vote enregistré ✅")
+        try {
+            const response = await fetch("/api/votes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product?.id }),
+            })
+
+            const payload = await response.json()
+
+            if (!response.ok) {
+                const errorMessage = payload?.message || "Erreur lors du vote"
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour voter !")
+                } else {
+                    toast.error(errorMessage)
+                }
+                return
+            }
+
+            toast.success(payload?.message ?? "Vote enregistré ✅")
             setUserVoted(true)
-            fetchVotes()
-        } else {
+            setVotesCount(payload?.votes ?? votesCount + 1)
+        } catch {
             toast.error("Erreur lors du vote")
         }
     }

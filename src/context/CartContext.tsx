@@ -1,7 +1,7 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type CartItem = {
+export type CartItem = {
     productId: string;
     name: string;
     image: string;
@@ -13,7 +13,11 @@ type CartItem = {
 type CartContextProps = {
     items: CartItem[];
     addToCart: (item: CartItem) => void;
+    removeFromCart: (productId: string, size: string) => void;
+    updateQuantity: (productId: string, size: string, quantity: number) => void;
+    clearCart: () => void;
     count: number;
+    total: number;
 };
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
@@ -53,10 +57,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
-    const count = items.reduce((sum, i) => sum + i.quantity, 0);
+    const removeFromCart = (productId: string, size: string) => {
+        setItems((prev) => prev.filter((item) => item.productId !== productId || item.size !== size));
+    };
+
+    const updateQuantity = (productId: string, size: string, quantity: number) => {
+        setItems((prev) =>
+            prev.map((item) =>
+                item.productId === productId && item.size === size
+                    ? { ...item, quantity: Math.max(1, quantity) }
+                    : item
+            )
+        );
+    };
+
+    const clearCart = () => setItems([]);
+
+    const { count, total } = useMemo(() => {
+        return {
+            count: items.reduce((sum, item) => sum + item.quantity, 0),
+            total: items.reduce((sum, item) => sum + item.quantity * item.price, 0),
+        };
+    }, [items]);
 
     return (
-        <CartContext.Provider value={{ items, addToCart, count }}>
+        <CartContext.Provider
+            value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, count, total }}
+        >
             {children}
         </CartContext.Provider>
     );
