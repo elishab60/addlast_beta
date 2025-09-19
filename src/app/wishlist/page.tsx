@@ -7,6 +7,9 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import type { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { getVoteWindowStart } from "@/lib/voteWindow";
 
 
 type Product = {
@@ -21,6 +24,8 @@ export default function WishlistPage() {
     const [user, setUser] = useState<User | null>(null);
     const [liked, setLiked] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [confirmProduct, setConfirmProduct] = useState<Product | null>(null);
+    const [actionLoading, setActionLoading] = useState(false);
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data }) => setUser(data?.user ?? null));
@@ -34,7 +39,7 @@ export default function WishlistPage() {
                 .from("votes")
                 .select("product_id")
                 .eq("user_id", user.id)
-                .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+                .gte("created_at", getVoteWindowStart())
                 .limit(2);
 
             if (votes && votes.length > 0) {
@@ -53,6 +58,44 @@ export default function WishlistPage() {
         };
         fetchLikes();
     }, [user]);
+
+    const handleOpenConfirm = (product: Product) => setConfirmProduct(product);
+
+    const handleConfirmChange = (open: boolean) => {
+        if (!open) {
+            setConfirmProduct(null);
+        }
+    };
+
+    const handleUnlike = async () => {
+        if (!user || !confirmProduct) return;
+
+        setActionLoading(true);
+        const { data, error } = await supabase
+            .from("votes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("product_id", confirmProduct.id)
+            .gte("created_at", getVoteWindowStart())
+            .select("id");
+
+        setActionLoading(false);
+
+        if (error) {
+            toast.error("Impossible de retirer ce like, réessaie.");
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            toast.info("Aucun like récent à retirer.");
+            setConfirmProduct(null);
+            return;
+        }
+
+        toast.success("Le produit a bien été retiré de tes likes.");
+        setLiked((prev) => prev.filter((p) => p.id !== confirmProduct.id));
+        setConfirmProduct(null);
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-white">
@@ -122,6 +165,20 @@ export default function WishlistPage() {
                                                 alt={prod.title}
                                                 className="object-contain"
                                             />
+                                            <Button
+                                                type="button"
+                                                size="icon"
+                                                variant="default"
+                                                className="absolute top-3 right-3 rounded-full border border-black bg-black text-white hover:bg-white hover:text-black"
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    handleOpenConfirm(prod);
+                                                }}
+                                                aria-label="Retirer ce produit de mes likes"
+                                            >
+                                                <Heart className="w-5 h-5" fill="currentColor" />
+                                            </Button>
                                         </div>
                                         <div className="font-bold text-lg mb-1 truncate w-full text-center">{prod.title}</div>
                                         <div className="text-gray-600 text-sm mb-2 w-full text-center">{prod.brand}</div>
@@ -133,6 +190,21 @@ export default function WishlistPage() {
                     </div>
                 )}
             </main>
+            <ConfirmDialog
+                open={!!confirmProduct}
+                onOpenChange={handleConfirmChange}
+                title="Retirer cette paire de tes likes ?"
+                description={
+                    confirmProduct && (
+                        <span>
+                            Tu pourras toujours revenir liker la <span className="font-semibold">{confirmProduct.title}</span> plus tard.
+                        </span>
+                    )
+                }
+                confirmLabel="Retirer"
+                onConfirm={handleUnlike}
+                confirmLoading={actionLoading}
+            />
             <Footer />
         </div>
     );

@@ -10,6 +10,8 @@ import { Heart } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import type { User } from "@supabase/supabase-js"
+import { getVoteWindowStart } from "@/lib/voteWindow"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
 
 type Product = {
     id: string
@@ -79,6 +81,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showModal, setShowModal] = useState(false)
+    const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
 
     useEffect(() => {
         fetchVotes()
@@ -91,7 +94,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
         setVotesCount(count || 0)
     }
 
@@ -101,7 +104,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             .select("product_id")
             .eq("user_id", user?.id)
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
         setUserVoted(!!(data && data.length))
     }
 
@@ -114,13 +117,18 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             return
         }
 
+        if (userVoted) {
+            setShowUnvoteConfirm(true)
+            return
+        }
+
         setLoading(true)
 
         const { data: userVotes } = await supabase
             .from("votes")
             .select("product_id")
             .eq("user_id", user.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
 
         if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
             toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
@@ -148,6 +156,36 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         } else {
             toast.error("Erreur lors du vote, réessaie.")
         }
+    }
+
+    async function handleUnvote() {
+        if (!user) return
+
+        setLoading(true)
+        const { data, error } = await supabase
+            .from("votes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
+            .select("id")
+
+        setLoading(false)
+        setShowUnvoteConfirm(false)
+
+        if (error) {
+            toast.error("Impossible de retirer ton like, réessaie.")
+            return
+        }
+
+        if (!data || data.length === 0) {
+            toast.info("Aucun like récent à retirer.")
+            return
+        }
+
+        toast.success("Ton like a bien été retiré.")
+        setUserVoted(false)
+        fetchVotes()
     }
 
     const percent = Math.min(
@@ -187,15 +225,16 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                         {/* Bouton like — shadcn monochrome */}
                         <Button
                             variant={userVoted ? "default" : "outline"}
-                            disabled={userVoted || loading}
+                            disabled={loading}
                             onClick={handleVote}
                             size="icon"
                             className={
                                 userVoted
-                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg黑 hover:text-white"
+                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-white hover:text-black"
                                     : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
                             }
-                            aria-label={userVoted ? "Déjà voté" : "Voter"}
+                            aria-label={userVoted ? "Retirer mon like" : "Voter"}
+                            aria-pressed={userVoted}
                         >
                             <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#000000" : "none"} />
                         </Button>
@@ -239,6 +278,16 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                         </Button>
                     </DialogContent>
                 </Dialog>
+
+                <ConfirmDialog
+                    open={showUnvoteConfirm}
+                    onOpenChange={setShowUnvoteConfirm}
+                    title="Retirer ton like ?"
+                    description="Cela libère un vote que tu pourras utiliser sur une autre paire."
+                    confirmLabel="Retirer"
+                    onConfirm={handleUnvote}
+                    confirmLoading={loading}
+                />
             </Card>
         </Link>
     )
