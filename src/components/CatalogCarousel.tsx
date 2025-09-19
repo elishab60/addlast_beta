@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -77,6 +78,7 @@ export default function CatalogGrid({
 /* -------------------- Card avec logique de vote -------------------- */
 
 function GridCard({ product, user }: { product: Product; user: User | null }) {
+    const router = useRouter()
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -193,18 +195,30 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         (votesCount / (product.goal_likes > 0 ? product.goal_likes : 1)) * 100
     )
 
+    function handleCardActivate() {
+        router.push(`/products/${product.id}`)
+    }
+
+    function handleCardKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "Enter" || event.key === " " || event.key === "Space") {
+            event.preventDefault()
+            handleCardActivate()
+        }
+    }
+
     return (
-        <Link
-            href={`/products/${product.id}`}
-            className="block group cursor-pointer"
-            prefetch={false}
+        <Card
+            role="link"
+            tabIndex={0}
+            onClick={handleCardActivate}
+            onKeyDown={handleCardKeyDown}
+            className="group cursor-pointer border border-black/20 hover:border-black transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7CFF6B]"
         >
-            <Card className="border border-black/20 hover:border-black transition-all duration-300 bg-white">
-                <CardHeader className="pb-2">
-                    {/* Image carrée */}
-                    <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                        <img
-                            src={product.image_url || "/placeholder.svg"}
+            <CardHeader className="pb-2">
+                {/* Image carrée */}
+                <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
+                    <img
+                        src={product.image_url || "/placeholder.svg"}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             loading="lazy"
@@ -288,8 +302,6 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                     onConfirm={handleUnvote}
                     confirmLoading={loading}
                 />
-            </Card>
-        </Link>
     )
 }
 
