@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, type KeyboardEvent, type MouseEvent } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -10,6 +11,8 @@ import { Heart } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import type { User } from "@supabase/supabase-js"
+import { getVoteWindowStart } from "@/lib/voteWindow"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
 
 type Product = {
     id: string
@@ -75,10 +78,12 @@ export default function CatalogGrid({
 /* -------------------- Card avec logique de vote -------------------- */
 
 function GridCard({ product, user }: { product: Product; user: User | null }) {
+    const router = useRouter()
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showModal, setShowModal] = useState(false)
+    const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
 
     useEffect(() => {
         fetchVotes()
@@ -91,7 +96,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
         setVotesCount(count || 0)
     }
 
@@ -101,16 +106,21 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             .select("product_id")
             .eq("user_id", user?.id)
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
         setUserVoted(!!(data && data.length))
     }
 
-    async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
+    async function handleVote(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
         e.stopPropagation()
 
         if (!user) {
             toast.info("Connecte-toi pour voter !")
+            return
+        }
+
+        if (userVoted) {
+            setShowUnvoteConfirm(true)
             return
         }
 
@@ -120,7 +130,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             .from("votes")
             .select("product_id")
             .eq("user_id", user.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
 
         if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
             toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
@@ -150,23 +160,68 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         }
     }
 
+    async function handleUnvote(event?: MouseEvent<HTMLButtonElement>) {
+        event?.preventDefault()
+        event?.stopPropagation()
+
+        if (!user) return
+
+        setLoading(true)
+        const { data, error } = await supabase
+            .from("votes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
+            .select("id")
+
+        setLoading(false)
+        setShowUnvoteConfirm(false)
+
+        if (error) {
+            toast.error("Impossible de retirer ton like, réessaie.")
+            return
+        }
+
+        if (!data || data.length === 0) {
+            toast.info("Aucun like récent à retirer.")
+            return
+        }
+
+        toast.success("Ton like a bien été retiré.")
+        setUserVoted(false)
+        fetchVotes()
+    }
+
     const percent = Math.min(
         100,
         (votesCount / (product.goal_likes > 0 ? product.goal_likes : 1)) * 100
     )
 
+    function handleCardActivate() {
+        router.push(`/products/${product.id}`)
+    }
+
+    function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "Enter" || event.key === " " || event.key === "Space") {
+            event.preventDefault()
+            handleCardActivate()
+        }
+    }
+
     return (
-        <Link
-            href={`/products/${product.id}`}
-            className="block group cursor-pointer"
-            prefetch={false}
+        <Card
+            role="link"
+            tabIndex={0}
+            onClick={handleCardActivate}
+            onKeyDown={handleCardKeyDown}
+            className="group cursor-pointer border border-black/20 hover:border-black transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7CFF6B]"
         >
-            <Card className="border border-black/20 hover:border-black transition-all duration-300 bg-white">
-                <CardHeader className="pb-2">
-                    {/* Image carrée */}
-                    <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                        <img
-                            src={product.image_url || "/placeholder.svg"}
+            <CardHeader className="pb-2">
+                {/* Image carrée */}
+                <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
+                    <img
+                        src={product.image_url || "/placeholder.svg"}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             loading="lazy"
@@ -187,15 +242,16 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                         {/* Bouton like — shadcn monochrome */}
                         <Button
                             variant={userVoted ? "default" : "outline"}
-                            disabled={userVoted || loading}
+                            disabled={loading}
                             onClick={handleVote}
                             size="icon"
                             className={
                                 userVoted
-                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg黑 hover:text-white"
+                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-white hover:text-black"
                                     : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
                             }
-                            aria-label={userVoted ? "Déjà voté" : "Voter"}
+                            aria-label={userVoted ? "Retirer mon like" : "Voter"}
+                            aria-pressed={userVoted}
                         >
                             <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#000000" : "none"} />
                         </Button>
@@ -239,8 +295,17 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                         </Button>
                     </DialogContent>
                 </Dialog>
-            </Card>
-        </Link>
+
+                <ConfirmDialog
+                    open={showUnvoteConfirm}
+                    onOpenChange={setShowUnvoteConfirm}
+                    title="Retirer ton like ?"
+                    description="Cela libère un vote que tu pourras utiliser sur une autre paire."
+                    confirmLabel="Retirer"
+                    onConfirm={handleUnvote}
+                    confirmLoading={loading}
+                />
+        </Card>
     )
 }
 

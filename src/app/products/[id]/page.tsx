@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, type MouseEvent } from "react"
 import { useParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import Header from "@/components/Header"
@@ -19,6 +19,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
+import { getVoteWindowStart } from "@/lib/voteWindow"
 import type { User } from "@supabase/supabase-js"
 
 type Product = {
@@ -45,6 +47,8 @@ export default function ProductPage() {
     const [userShoeSize, setUserShoeSize] = useState<string>("")
     const [dirty, setDirty] = useState(false)
     const [showGuide, setShowGuide] = useState(false)
+    const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
+    const [voteLoading, setVoteLoading] = useState(false)
     const { addToCart } = useCart()
 
     useEffect(() => {
@@ -84,6 +88,7 @@ export default function ProductPage() {
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
         setVotesCount(count || 0)
     }, [product])
 
@@ -94,6 +99,7 @@ export default function ProductPage() {
             .select("product_id")
             .eq("user_id", user.id)
             .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
         setUserVoted(!!(data && data.length))
     }, [product, user])
 
@@ -109,15 +115,17 @@ export default function ProductPage() {
             return
         }
         if (userVoted) {
-            toast.info("Tu as déjà voté pour cette paire !")
+            setShowUnvoteConfirm(true)
             return
         }
 
+        setVoteLoading(true)
         try {
             const response = await fetch("/api/votes", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ productId: product?.id }),
+                credentials: "include",
             })
 
             const payload = await response.json()
@@ -129,14 +137,60 @@ export default function ProductPage() {
                 } else {
                     toast.error(errorMessage)
                 }
+                setVoteLoading(false)
                 return
             }
 
             toast.success(payload?.message ?? "Vote enregistré ✅")
             setUserVoted(true)
             setVotesCount(payload?.votes ?? votesCount + 1)
+            setVoteLoading(false)
         } catch {
+            setVoteLoading(false)
             toast.error("Erreur lors du vote")
+        }
+    }
+
+    async function handleUnvote(event: MouseEvent<HTMLButtonElement>) {
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (!user || !product) return
+
+        setVoteLoading(true)
+        try {
+            const response = await fetch("/api/votes", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+                credentials: "include",
+            })
+
+            const payload = await response.json()
+
+            if (!response.ok) {
+                const message = payload?.message || "Impossible de retirer ton like."
+                if (response.status === 404) {
+                    toast.info(message)
+                } else if (response.status === 401) {
+                    toast.info("Connecte-toi pour gérer tes likes.")
+                } else {
+                    toast.error(message)
+                }
+                setVoteLoading(false)
+                setShowUnvoteConfirm(false)
+                return
+            }
+
+            toast.success(payload?.message ?? "Ton like a bien été retiré.")
+            setUserVoted(false)
+            setVotesCount(payload?.votes ?? Math.max(0, votesCount - 1))
+            setVoteLoading(false)
+            setShowUnvoteConfirm(false)
+        } catch {
+            setVoteLoading(false)
+            setShowUnvoteConfirm(false)
+            toast.error("Impossible de retirer ton like, réessaie.")
         }
     }
 
@@ -232,12 +286,14 @@ export default function ProductPage() {
                     {product.status === "En vote" && percent < 100 && (
                         <Button
                             variant={userVoted ? "default" : "outline"}
-                            disabled={userVoted}
+                            disabled={voteLoading}
                             onClick={handleVote}
                             className="w-full"
+                            aria-label={userVoted ? "Retirer mon like" : "Voter pour cette paire"}
+                            aria-pressed={userVoted}
                         >
                             <Heart className="w-5 h-5 mr-2" fill={userVoted ? "#000000" : "none"} />
-                            {userVoted ? "Déjà voté" : "Voter pour cette paire"}
+                            {userVoted ? "Retirer mon like" : "Voter pour cette paire"}
                         </Button>
                     )}
 
@@ -296,6 +352,16 @@ export default function ProductPage() {
                 </div>
             </main>
             <Footer />
+
+            <ConfirmDialog
+                open={showUnvoteConfirm}
+                onOpenChange={setShowUnvoteConfirm}
+                title="Retirer ton like ?"
+                description="Ce vote sera libéré et tu pourras le réutiliser sur une autre paire."
+                confirmLabel="Retirer"
+                onConfirm={handleUnvote}
+                confirmLoading={voteLoading}
+            />
 
             {/* Guide des tailles */}
             <Dialog open={showGuide} onOpenChange={setShowGuide}>

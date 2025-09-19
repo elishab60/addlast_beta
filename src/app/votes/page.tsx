@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState, type KeyboardEvent, type MouseEvent } from "react"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import type { User } from "@supabase/supabase-js"
@@ -11,6 +11,9 @@ import { Heart, Trophy, Users, Clock } from "lucide-react"
 import Link from "next/link"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import { getVoteWindowStart } from "@/lib/voteWindow"
+import { ConfirmDialog } from "@/components/ConfirmDialog"
+import { useRouter } from "next/navigation"
 
 type Product = {
     id: string
@@ -28,7 +31,14 @@ export default function VotesPage() {
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data }) => setUser(data?.user ?? null))
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) =>
+            setUser(session?.user ?? null),
+        )
         fetchProducts()
+
+        return () => {
+            authListener?.subscription.unsubscribe()
+        }
     }, [])
 
     async function fetchProducts() {
@@ -114,16 +124,18 @@ export default function VotesPage() {
 /* -------------------- Card de vote -------------------- */
 
 function VoteCard({ product, user, small }: { product: Product; user: User | null; small?: boolean }) {
+    const router = useRouter()
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
 
     const fetchVotes = useCallback(async () => {
         const { count } = await supabase
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
         setVotesCount(count || 0)
     }, [product.id])
 
@@ -133,7 +145,7 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
             .select("product_id")
             .eq("user_id", user?.id)
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+            .gte("created_at", getVoteWindowStart())
         setUserVoted(!!(data && data.length))
     }, [product.id, user?.id])
 
@@ -142,10 +154,16 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
         if (user) checkUserVote()
     }, [fetchVotes, checkUserVote, user])
 
-    async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
+    async function handleVote(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
+        e.stopPropagation()
         if (!user) {
             toast.info("Connecte-toi pour voter !")
+            return
+        }
+
+        if (userVoted) {
+            setShowUnvoteConfirm(true)
             return
         }
 
@@ -155,6 +173,7 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ productId: product.id }),
+                credentials: "include",
             })
 
             const payload = await response.json()
@@ -179,10 +198,68 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
         }
     }
 
+    async function handleUnvote(event: MouseEvent<HTMLButtonElement>) {
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (!user) return
+
+        setLoading(true)
+        try {
+            const response = await fetch("/api/votes", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+                credentials: "include",
+            })
+
+            const payload = await response.json()
+            setLoading(false)
+            setShowUnvoteConfirm(false)
+
+            if (!response.ok) {
+                const message = payload?.message || "Impossible de retirer ton like."
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour gérer tes likes.")
+                } else if (response.status === 404) {
+                    toast.info(message)
+                } else {
+                    toast.error(message)
+                }
+                return
+            }
+
+            toast.success(payload?.message ?? "Ton like a bien été retiré.")
+            setUserVoted(false)
+            setVotesCount(payload?.votes ?? Math.max(0, votesCount - 1))
+        } catch {
+            setLoading(false)
+            setShowUnvoteConfirm(false)
+            toast.error("Impossible de retirer ton like, réessaie.")
+        }
+    }
+
     const percent = Math.min(100, (votesCount / (product.goal_likes || 1)) * 100)
 
+    function handleCardActivate() {
+        router.push(`/products/${product.id}`)
+    }
+
+    function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "Enter" || event.key === " " || event.key === "Space") {
+            event.preventDefault()
+            handleCardActivate()
+        }
+    }
+
     return (
-        <Link href={`/products/${product.id}`} className="block group">
+        <div
+            role="link"
+            tabIndex={0}
+            onClick={handleCardActivate}
+            onKeyDown={handleCardKeyDown}
+            className="group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7CFF6B]"
+        >
             <Card className="border border-black/20 hover:border-black transition-all duration-300 bg-white">
                 <CardHeader className="pb-2">
                     <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
@@ -199,9 +276,11 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                         <CardTitle className="text-lg font-semibold truncate">{product.title}</CardTitle>
                         <Button
                             variant={userVoted ? "default" : "outline"}
-                            disabled={userVoted || loading}
+                            disabled={loading}
                             onClick={handleVote}
                             size={small ? "sm" : "icon"}
+                            aria-label={userVoted ? "Retirer mon like" : "Voter"}
+                            aria-pressed={userVoted}
                         >
                             <Heart className="w-5 h-5" fill={userVoted ? "#000000" : "none"} />
                         </Button>
@@ -217,6 +296,15 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                     </div>
                 </CardContent>
             </Card>
-        </Link>
+            <ConfirmDialog
+                open={showUnvoteConfirm}
+                onOpenChange={setShowUnvoteConfirm}
+                title="Retirer ton like ?"
+                description="Ce produit quittera ta sélection du mois, mais tu pourras voter à nouveau."
+                confirmLabel="Retirer"
+                onConfirm={handleUnvote}
+                confirmLoading={loading}
+            />
+        </div>
     )
 }
