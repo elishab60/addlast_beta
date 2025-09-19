@@ -33,7 +33,7 @@ export default function HeroSection() {
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                     <Link href="/catalogue">
-                        <Button size="lg" className="bg-black text-white border-2 border-accent transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
+                        <Button size="lg" className="bg-black text-white  transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
                             Découvrir les paires
                         </Button>
                     </Link>
