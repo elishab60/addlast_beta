@@ -47,8 +47,8 @@ export default function VotesPage() {
             {/* Hero Section */}
             <section className="py-16 px-4 text-center border-b border-border">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                        Votez pour vos <span className="italic">sneakers</span> préférées
+                    <h1 className="text-4xl md:text-6xl font-bold mb-6 text-accent">
+                        Votez pour vos <span className="italic text-accent-muted">sneakers</span> préférées
                     </h1>
                     <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
                         Choisissez jusqu’à 2 paires maximum et suivez leur progression vers la précommande.
@@ -74,8 +74,8 @@ export default function VotesPage() {
             <section className="py-16 px-4">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex items-center gap-3 mb-12">
-                        <Trophy className="w-8 h-8" />
-                        <h2 className="text-3xl font-bold">Classement des votes</h2>
+                        <Trophy className="w-8 h-8 text-accent" />
+                        <h2 className="text-3xl font-bold text-accent">Classement des votes</h2>
                     </div>
                     <div className="grid md:grid-cols-3 gap-8">
                         {products.slice(0, 3).map((p) => (
@@ -88,7 +88,7 @@ export default function VotesPage() {
             {/* All products */}
             <section className="py-16 px-4 bg-muted/30">
                 <div className="max-w-6xl mx-auto">
-                    <h2 className="text-3xl font-bold mb-12">Toutes les sneakers</h2>
+                    <h2 className="text-3xl font-bold mb-12 text-accent">Toutes les sneakers</h2>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {products.map((p) => (
                             <VoteCard key={p.id} product={p} user={user} small />
@@ -100,7 +100,7 @@ export default function VotesPage() {
             {/* CTA vers les précommandes */}
             <div className="mt-10 flex justify-center">
                 <Link href="/precommandes">
-                    <Button className="bg-black text-white hover:bg-white hover:text-black border border-black px-6 py-3 text-lg">
+                    <Button className="bg-black text-white border border-accent transition-colors hover:bg-accent hover:text-black px-6 py-3 text-lg">
                         Voir les précommandes disponibles
                     </Button>
                 </Link>
@@ -235,7 +235,7 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
 
     return (
         <Link href={`/products/${product.id}`} className="block group">
-            <Card className="border border-black/20 hover:border-black transition-all duration-300 bg-white">
+            <Card className="border border-border hover:border-accent transition-all duration-300 bg-white">
                 <CardHeader className="pb-2">
                     <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
                         <img
@@ -247,7 +247,7 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg font-semibold truncate">{product.title}</CardTitle>
+                        <CardTitle className="text-lg font-semibold truncate text-accent group-hover:text-accent-muted transition-colors">{product.title}</CardTitle>
                         <Button
                             variant={userVoted ? "default" : "outline"}
                             disabled={loading}
@@ -255,8 +255,11 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                             size={small ? "sm" : "icon"}
                             aria-label={userVoted ? "Retirer mon like" : "Voter"}
                             aria-pressed={userVoted}
+                            className={`border border-accent transition-colors ${
+                                userVoted ? "bg-accent text-black hover:bg-accent" : "hover:bg-accent hover:text-black"
+                            }`}
                         >
-                            <Heart className="w-5 h-5" fill={userVoted ? "#000000" : "none"} />
+                            <Heart className="w-5 h-5" fill={userVoted ? "#7CFF6B" : "none"} color="#7CFF6B" />
                         </Button>
                     </div>
 

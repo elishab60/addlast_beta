@@ -43,10 +43,10 @@ export default function CatalogGrid({
                 {/* Titre centré avec underline hover */}
                 <div className="text-center mb-10 md:mb-12">
                     <span className="relative inline-block group">
-                        <h2 className="text-3xl md:text-4xl font-light tracking-wide text-black transition-colors duration-300 group-hover:text-gray-700">
+                        <h2 className="text-3xl md:text-4xl font-light tracking-wide text-accent transition-colors duration-300 group-hover:text-accent-muted">
                             {title}
                         </h2>
-                        <span className="pointer-events-none absolute left-0 -bottom-2 h-0.5 bg-black w-0 transition-all duration-300 group-hover:w-full"></span>
+                        <span className="pointer-events-none absolute left-0 -bottom-2 h-0.5 bg-accent w-0 transition-all duration-300 group-hover:w-full"></span>
                     </span>
                 </div>
 
@@ -65,7 +65,7 @@ export default function CatalogGrid({
                 {/* CTA centré sous les cards */}
                 <div className="text-center mt-10">
                     <Link href={ctaHref}>
-                        <Button className="bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all duration-300 px-8 py-3 text-base font-medium tracking-wide">
+                        <Button className="bg-black text-white border-2 border-accent transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
                             Voir tout le catalogue
                         </Button>
                     </Link>
@@ -218,7 +218,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             tabIndex={0}
             onClick={handleCardActivate}
             onKeyDown={handleCardKeyDown}
-            className="group cursor-pointer border border-black/20 hover:border-black transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7CFF6B]"
+            className="group cursor-pointer border border-border hover:border-accent transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent"
         >
             <CardHeader className="pb-2">
                 {/* Image carrée */}
@@ -232,7 +232,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                     />
                 </div>
 
-                <CardTitle className="mt-3 text-lg font-semibold truncate text-black">
+                <CardTitle className="mt-3 text-lg font-semibold truncate text-accent group-hover:text-accent-muted transition-colors">
                     {product.name}
                 </CardTitle>
                 <div className="text-sm text-neutral-500">{product.brand}</div>
@@ -240,7 +240,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
 
             <CardContent className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <span className="font-bold text-xl text-black">{product.price}€</span>
+                    <span className="font-bold text-xl text-accent">{product.price}€</span>
 
                     {/* Bouton like */}
                     <Button
@@ -250,13 +250,13 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                         size="icon"
                         className={
                             userVoted
-                                ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-white hover:text-black"
-                                : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
+                                ? "rounded-full w-12 h-12 bg-accent text-black border-2 border-accent hover:bg-accent"
+                                : "rounded-full w-12 h-12 border-2 border-accent text-accent hover:bg-accent hover:text-black"
                         }
                         aria-label={userVoted ? "Retirer mon like" : "Voter"}
                         aria-pressed={userVoted}
                     >
-                        <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#000000" : "none"} />
+                        <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#7CFF6B" : "none"} color="#7CFF6B" />
                     </Button>
                 </div>
 
@@ -292,7 +292,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                             Retente le mois prochain ou retire un vote depuis ton profil.
                         </p>
                     </div>
-                    <Button onClick={() => setShowModal(false)} className="mt-2 w-full">
+                    <Button onClick={() => setShowModal(false)} className="mt-2 w-full bg-black text-white border border-accent hover:bg-accent hover:text-black">
                         Fermer
                     </Button>
                 </DialogContent>
@@ -329,10 +329,10 @@ function StatusBand({
     const quotaAtteint = votesCount >= (goal_likes || 1)
 
     if (quotaAtteint) {
-        return <div className={`${base} bg-white text-black border-black`}>En précommande</div>
+        return <div className={`${base} bg-white text-accent border-accent`}>En précommande</div>
     }
     if (status === "En vote") {
-        return <div className={`${base} bg-black text-white border-black`}>En vote</div>
+        return <div className={`${base} bg-accent text-black border-accent`}>En vote</div>
     }
     return (
         <div className={`${base} bg-neutral-100 text-neutral-600 border-neutral-300`}>

@@ -250,9 +250,9 @@ export default function ProductPage() {
                     <div
                         className={`w-full text-center text-xs font-medium uppercase rounded-md py-2 border ${
                             percent >= 100
-                                ? "bg-white text-black border-black"
+                                ? "bg-white text-accent border-accent"
                                 : product.status === "En vote"
-                                    ? "bg-black text-white border-black"
+                                    ? "bg-accent text-black border-accent"
                                     : "bg-neutral-200 text-neutral-600 border-neutral-300"
                         }`}
                     >
@@ -261,9 +261,9 @@ export default function ProductPage() {
 
                     {/* Infos produit */}
                     <div>
-                        <h1 className="text-3xl font-bold">{product.title}</h1>
+                        <h1 className="text-3xl font-bold text-accent">{product.title}</h1>
                         <div className="text-lg text-muted-foreground">{product.brand}</div>
-                        <div className="text-2xl font-semibold mt-2">{product.price} €</div>
+                        <div className="text-2xl font-semibold mt-2 text-accent">{product.price} €</div>
                     </div>
 
                     {/* Progress votes */}
@@ -283,11 +283,13 @@ export default function ProductPage() {
                             variant={userVoted ? "default" : "outline"}
                             disabled={voteLoading}
                             onClick={handleVote}
-                            className="w-full"
+                            className={`w-full border border-accent transition-colors ${
+                                userVoted ? "bg-accent text-black hover:bg-accent" : "hover:bg-accent hover:text-black"
+                            }`}
                             aria-label={userVoted ? "Retirer mon like" : "Voter pour cette paire"}
                             aria-pressed={userVoted}
                         >
-                            <Heart className="w-5 h-5 mr-2" fill={userVoted ? "#000000" : "none"} />
+                            <Heart className="w-5 h-5 mr-2" fill={userVoted ? "#7CFF6B" : "none"} color="#7CFF6B" />
                             {userVoted ? "Retirer mon like" : "Voter pour cette paire"}
                         </Button>
                     )}
@@ -298,7 +300,7 @@ export default function ProductPage() {
                             <div>
                                 <div className="mb-2 font-medium flex items-center justify-between">
                                     <span>Votre taille</span>
-                                    <Button variant="outline" size="sm" onClick={() => setShowGuide(true)}>
+                                    <Button variant="outline" size="sm" onClick={() => setShowGuide(true)} className="border border-accent text-accent hover:bg-accent hover:text-black">
                                         Guide des tailles
                                     </Button>
                                 </div>

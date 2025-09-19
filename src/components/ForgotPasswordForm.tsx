@@ -30,7 +30,7 @@ export default function ForgotPasswordForm() {
     return (
         <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95">
             <CardHeader className="pt-10 pb-2 flex flex-col items-center gap-2">
-        <span className="text-3xl font-black tracking-tight uppercase text-black select-none">
+        <span className="text-3xl font-black tracking-tight uppercase text-accent select-none">
           addlast
         </span>
                 <CardTitle className="text-center text-2xl font-extrabold tracking-tight">
@@ -53,7 +53,7 @@ export default function ForgotPasswordForm() {
                     />
                     <Button
                         type="submit"
-                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl"
+                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl bg-black text-white border border-accent hover:bg-accent hover:text-black"
                         disabled={loading}
                     >
                         {loading ? "Envoi en cours..." : "Envoyer le lien de réinitialisation"}
@@ -62,7 +62,7 @@ export default function ForgotPasswordForm() {
                 <div className="text-sm mt-8 text-center">
                     <Link
                         href="/sign-in"
-                        className="text-black underline font-semibold hover:no-underline hover:text-neutral-700 transition"
+                        className="text-accent underline font-semibold hover:no-underline hover:text-accent-muted transition"
                     >
                         Retour à la connexion
                     </Link>
