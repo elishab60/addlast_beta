@@ -110,6 +110,14 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         setUserVoted(!!(data && data.length))
     }
 
+    async function parseResponse(response: Response) {
+        try {
+            return await response.json()
+        } catch {
+            return null
+        }
+    }
+
     async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
         e.stopPropagation()
@@ -126,37 +134,40 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
 
         setLoading(true)
 
-        const { data: userVotes } = await supabase
-            .from("votes")
-            .select("product_id")
-            .eq("user_id", user.id)
-            .gte("created_at", getVoteWindowStart())
+        try {
+            const response = await fetch("/api/votes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+            })
 
-        if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
-            toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
-            setLoading(false)
-            return
-        }
+            const payload = await parseResponse(response)
 
-        if ((userVotes?.length || 0) >= 2) {
-            setShowModal(true)
-            setLoading(false)
-            return
-        }
+            if (!response.ok) {
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour voter !")
+                } else if (response.status === 409) {
+                    if (payload?.reason === "limit") {
+                        setShowModal(true)
+                    } else if (payload?.reason === "duplicate") {
+                        setUserVoted(true)
+                        toast.info(payload?.message ?? "Tu as déjà voté pour cette paire.")
+                    } else {
+                        toast.error(payload?.message ?? "Impossible d'enregistrer ton vote.")
+                    }
+                } else {
+                    toast.error(payload?.message ?? "Erreur lors du vote, réessaie.")
+                }
+                return
+            }
 
-        const { error } = await supabase.from("votes").insert({
-            user_id: user.id,
-            product_id: product.id,
-        })
-
-        setLoading(false)
-
-        if (!error) {
-            toast.success("Ton vote a bien été pris en compte !")
+            toast.success(payload?.message ?? "Ton vote a bien été pris en compte !")
             setUserVoted(true)
-            fetchVotes()
-        } else {
+            setVotesCount((prev) => (typeof payload?.votes === "number" ? payload.votes : prev + 1))
+        } catch {
             toast.error("Erreur lors du vote, réessaie.")
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -164,30 +175,38 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         if (!user) return
 
         setLoading(true)
-        const { data, error } = await supabase
-            .from("votes")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart())
-            .select("id")
 
-        setLoading(false)
-        setShowUnvoteConfirm(false)
+        try {
+            const response = await fetch("/api/votes", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+            })
 
-        if (error) {
+            const payload = await parseResponse(response)
+            setShowUnvoteConfirm(false)
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour gérer tes likes.")
+                } else if (response.status === 404) {
+                    toast.info(payload?.message ?? "Aucun like récent à retirer.")
+                } else {
+                    toast.error(payload?.message ?? "Impossible de retirer ton like, réessaie.")
+                }
+                return
+            }
+
+            toast.success(payload?.message ?? "Ton like a bien été retiré.")
+            setUserVoted(false)
+            setVotesCount((prev) =>
+                typeof payload?.votes === "number" ? payload.votes : Math.max(0, prev - 1)
+            )
+        } catch {
             toast.error("Impossible de retirer ton like, réessaie.")
-            return
+        } finally {
+            setLoading(false)
         }
-
-        if (!data || data.length === 0) {
-            toast.info("Aucun like récent à retirer.")
-            return
-        }
-
-        toast.success("Ton like a bien été retiré.")
-        setUserVoted(false)
-        fetchVotes()
     }
 
     const percent = Math.min(
