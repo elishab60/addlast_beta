@@ -114,12 +114,12 @@ export default function WishlistPage() {
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                             <Link href="/sign-up" className="w-full sm:w-auto">
-                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto bg-black text-white border border-accent transition-colors hover:bg-accent hover:text-black">
+                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto bg-black text-white border border-black transition-colors hover:bg-accent hover:text-black">
                                     CRÉER UN COMPTE
                                 </Button>
                             </Link>
                             <Link href="/sign-in" className="w-full sm:w-auto">
-                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto bg-black text-white border border-accent transition-colors hover:bg-accent hover:text-black">
+                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto bg-black text-white border border-black transition-colors hover:bg-accent hover:text-black">
                                     SE CONNECTER
                                 </Button>
                             </Link>

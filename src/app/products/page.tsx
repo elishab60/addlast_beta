@@ -92,14 +92,14 @@ export default function ProductsPage() {
                         Pour voter ou précommander, rendez-vous dans les sections{" "}
                         <Link
                             href="/votes"
-                            className="font-medium underline underline-offset-4 text-accent hover:text-accent-muted transition-colors"
+                            className="text-black underline transition-colors hover:text-accent"
                         >
                             Votes
                         </Link>{" "}
                         et{" "}
                         <Link
                             href="/precommandes"
-                            className="font-medium underline underline-offset-4 text-accent hover:text-accent-muted transition-colors"
+                            className="text-black underline transition-colors hover:text-accent"
                         >
                             Précommandes
                         </Link>.
@@ -155,7 +155,7 @@ export default function ProductsPage() {
                         {(brandFilter || modelFilter || search) && (
                             <Button
                                 variant="ghost"
-                                className="flex items-center gap-2 text-accent hover:text-accent-muted hover:bg-accent-muted"
+                                className="flex items-center gap-2 text-black hover:text-accent-muted hover:bg-black-muted"
                                 onClick={() => {
                                     setBrandFilter("");
                                     setModelFilter("");
@@ -174,7 +174,7 @@ export default function ProductsPage() {
                         <Loader2 className="animate-spin mr-2" /> Chargement…
                     </div>
                 ) : filtered.length === 0 ? (
-                    <div className="text-center text-accent py-24">
+                    <div className="text-center text-black py-24">
                         Aucun produit trouvé.
                     </div>
                 ) : (
@@ -194,7 +194,7 @@ export default function ProductsPage() {
                     <Link href="/proposer">
                         <Button
                             size="lg"
-                            className="gap-2 bg-black text-white border-2 border-accent transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide"
+                            className="bg-black text-white border border-black transition-colors hover:bg-accent hover:text-black"
                         >
                             <PlusCircle size={18} /> Proposer une paire
                         </Button>
@@ -220,7 +220,7 @@ function ProductCard({ product }: { product: Product }) {
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                     </div>
-                    <CardTitle className="mt-3 text-lg font-semibold truncate text-accent group-hover:text-accent-muted transition-colors">
+                    <CardTitle className="mt-3 text-lg font-semibold truncate text-black group-hover:text-accent-muted transition-colors">
                         {product.title}
                     </CardTitle>
                 </CardHeader>

@@ -75,14 +75,14 @@ export default function SocialMediaBentoGrid() {
         <section className="w-full max-w-6xl mx-auto px-4 py-12 bg-white">
             {/* Header Réseaux */}
             <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-accent mb-8">Nous suivre sur les réseaux</h2>
-
+                <h2 className="text-xl md:text-3xl lg:text-3xl font-bold text-black text-balance transition-colors duration-300 group-hover:text-accent-muted">Nous suivre sur les réseaux</h2>
+<br/><br/>
                 <div className="flex justify-center items-center gap-8 mb-12">
                     <Link href="https://www.tiktok.com/@add_last" target="_blank" className="text-center group">
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
                             <TikTokIcon className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-accent group-hover:text-accent-muted">@add_last</p>
+                        <p className="text-sm font-medium text-black group-hover:text-accent-muted">@add_last</p>
                         <p className="text-xs text-gray-600">TikTok</p>
                     </Link>
 
@@ -94,7 +94,7 @@ export default function SocialMediaBentoGrid() {
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
                             <InstagramIcon className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-accent group-hover:text-accent-muted">@add_last</p>
+                        <p className="text-sm font-medium text-black group-hover:text-accent-muted">@add_last</p>
                         <p className="text-xs text-gray-600">Instagram</p>
                     </Link>
 
@@ -102,7 +102,7 @@ export default function SocialMediaBentoGrid() {
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
                             <YouTubeIcon className="w-8 h-8 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-accent group-hover:text-accent-muted">@add-last</p>
+                        <p className="text-sm font-medium text-black group-hover:text-accent-muted">@add-last</p>
                         <p className="text-xs text-gray-600">YouTube</p>
                     </Link>
                 </div>

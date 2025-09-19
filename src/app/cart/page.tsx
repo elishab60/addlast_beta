@@ -20,7 +20,7 @@ export default function CartPage() {
                         Ton panier est vide.
                         <div className="mt-6">
                             <Link href="/products">
-                                <Button className="rounded-full px-8 py-3 font-bold border border-accent bg-black text-white transition-colors hover:bg-accent hover:text-black">
+                                <Button className="rounded-full px-8 py-3 font-bold border border-black bg-black text-white transition-colors hover:bg-accent hover:text-black">
                                     Voir le catalogue
                                 </Button>
                             </Link>
@@ -30,7 +30,7 @@ export default function CartPage() {
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
                             <h2 className="text-xl font-semibold text-accent">Mon panier ({count})</h2>
-                            <Button variant="ghost" onClick={clearCart} className="text-sm text-accent hover:text-accent-muted">
+                            <Button onClick={clearCart} className="text-sm text-black hover:text-accent-muted bg-white">
                                 Vider le panier
                             </Button>
                         </div>
@@ -55,7 +55,7 @@ export default function CartPage() {
                                     size="icon"
                                     onClick={() => updateQuantity(item.productId, item.size, item.quantity - 1)}
                                     aria-label="Diminuer la quantité"
-                                    className="border border-accent text-accent hover:bg-accent hover:text-black"
+                                    className="border border-black text-black hover:bg-accent hover:text-black"
                                 >
                                     <Minus className="h-4 w-4" />
                                 </Button>
@@ -65,7 +65,7 @@ export default function CartPage() {
                                     size="icon"
                                     onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
                                     aria-label="Augmenter la quantité"
-                                    className="border border-accent text-accent hover:bg-accent hover:text-black"
+                                    className="border border-black text-black hover:bg-accent hover:text-black"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </Button>
@@ -75,7 +75,7 @@ export default function CartPage() {
                                 size="icon"
                                 onClick={() => removeFromCart(item.productId, item.size)}
                                 aria-label="Retirer l'article"
-                                className="text-accent hover:text-accent-muted"
+                                className="text-black"
                             >
                                 <Trash2 className="h-5 w-5" />
                             </Button>
@@ -85,7 +85,7 @@ export default function CartPage() {
                             <div className="text-xl font-bold">Total</div>
                             <div className="text-xl font-bold">{total} €</div>
                         </div>
-                        <Button className="w-full rounded-full py-4 text-lg font-bold border border-accent bg-black text-white transition-colors hover:bg-accent hover:text-black">
+                        <Button className="w-full rounded-full py-4 text-lg font-bold border border-black bg-black text-white transition-colors hover:bg-accent hover:text-black">
                             Passer la précommande
                         </Button>
                     </div>

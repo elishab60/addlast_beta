@@ -43,7 +43,7 @@ export default function CatalogGrid({
                 {/* Titre centré avec underline hover */}
                 <div className="text-center mb-10 md:mb-12">
                     <span className="relative inline-block group">
-                        <h2 className="text-3xl md:text-4xl font-light tracking-wide text-accent transition-colors duration-300 group-hover:text-accent-muted">
+                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black text-balance transition-colors duration-300 group-hover:text-accent-muted">
                             {title}
                         </h2>
                         <span className="pointer-events-none absolute left-0 -bottom-2 h-0.5 bg-accent w-0 transition-all duration-300 group-hover:w-full"></span>
@@ -65,7 +65,7 @@ export default function CatalogGrid({
                 {/* CTA centré sous les cards */}
                 <div className="text-center mt-10">
                     <Link href={ctaHref}>
-                        <Button className="bg-black text-white border-2 border-accent transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
+                        <Button className="bg-black text-white  transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
                             Voir tout le catalogue
                         </Button>
                     </Link>
