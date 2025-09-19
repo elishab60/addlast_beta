@@ -1,5 +1,6 @@
 {
   "name": "addlast_mvp",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
