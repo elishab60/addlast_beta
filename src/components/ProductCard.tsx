@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Heart } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User } from "@supabase/supabase-js";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
@@ -33,7 +32,6 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     const [votesCount, setVotesCount] = useState(0);
     const [userVoted, setUserVoted] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [showModal, setShowModal] = useState(false);
     const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false);
     const userId = user?.id;
 
@@ -75,12 +73,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
                 if (result.status === 401) {
                     toast.info("Connecte-toi pour voter !");
                 } else if (result.status === 409) {
-                    const message = result.message || "Tu as déjà voté pour cette paire ce mois-ci !";
-                    if (message.toLowerCase().includes("limite")) {
-                        setShowModal(true);
-                    } else {
-                        toast.info(message);
-                    }
+                    toast.info(result.message || "Tu as déjà liké cette paire.");
                 } else {
                     toast.error(result.message || "Erreur lors du vote, réessaie.");
                 }
@@ -172,23 +165,6 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
                         <Progress value={percent} className="h-2 rounded-full" />
                     </div>
                 </CardContent>
-                {/* Modal limitation de votes */}
-                <Dialog open={showModal} onOpenChange={setShowModal}>
-                    <DialogContent className="max-w-sm">
-                        <DialogHeader>
-                            <DialogTitle>Limite de votes atteinte</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-2">
-                            <p>
-                                Tu as déjà voté pour 2 paires différentes ce mois-ci.<br />
-                                Retente le mois prochain ou retire un vote depuis ton profil.
-                            </p>
-                        </div>
-                        <Button onClick={() => setShowModal(false)} className="mt-2 w-full">
-                            Fermer
-                        </Button>
-                    </DialogContent>
-                </Dialog>
                 <ConfirmDialog
                     open={showUnvoteConfirm}
                     onOpenChange={setShowUnvoteConfirm}

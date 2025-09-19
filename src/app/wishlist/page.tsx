@@ -9,7 +9,6 @@ import Footer from "@/components/Footer";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { getVoteWindowStart } from "@/lib/voteWindow";
 import { removeVoteForProduct } from "@/lib/voteApi";
 
 
@@ -36,12 +35,17 @@ export default function WishlistPage() {
         if (!user) return setLoading(false);
         const fetchLikes = async () => {
             setLoading(true);
-            const { data: votes } = await supabase
+            const { data: votes, error } = await supabase
                 .from("votes")
                 .select("product_id")
-                .eq("user_id", user.id)
-                .gte("created_at", getVoteWindowStart())
-                .limit(2);
+                .eq("user_id", user.id);
+
+            if (error) {
+                toast.error("Impossible de récupérer tes likes.");
+                setLiked([]);
+                setLoading(false);
+                return;
+            }
 
             if (votes && votes.length > 0) {
                 const { data: products } = await supabase
