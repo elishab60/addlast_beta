@@ -11,8 +11,12 @@ import { Heart, Trophy, Users, Clock } from "lucide-react"
 import Link from "next/link"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { getVoteWindowStart } from "@/lib/voteWindow"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
+import {
+    fetchVoteStatus,
+    voteForProduct,
+    removeVoteForProduct,
+} from "@/lib/voteApi"
 
 type Product = {
     id: string
@@ -120,30 +124,21 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
     const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
+    const userId = user?.id
 
-    const fetchVotes = useCallback(async () => {
-        const { count } = await supabase
-            .from("votes")
-            .select("*", { count: "exact", head: true })
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart())
-        setVotesCount(count || 0)
-    }, [product.id])
-
-    const checkUserVote = useCallback(async () => {
-        const { data } = await supabase
-            .from("votes")
-            .select("product_id")
-            .eq("user_id", user?.id)
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart())
-        setUserVoted(!!(data && data.length))
-    }, [product.id, user?.id])
+    const refreshVoteStatus = useCallback(async () => {
+        try {
+            const status = await fetchVoteStatus(product.id)
+            setVotesCount(status.votes)
+            setUserVoted(userId ? status.userVoted : false)
+        } catch (error) {
+            console.error("Failed to fetch vote status", error)
+        }
+    }, [product.id, userId])
 
     useEffect(() => {
-        fetchVotes()
-        if (user) checkUserVote()
-    }, [fetchVotes, checkUserVote, user])
+        refreshVoteStatus()
+    }, [refreshVoteStatus])
 
     async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
@@ -159,30 +154,30 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
 
         setLoading(true)
         try {
-            const response = await fetch("/api/votes", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ productId: product.id }),
-            })
-
-            const payload = await response.json()
+            const result = await voteForProduct(product.id)
             setLoading(false)
 
-            if (!response.ok) {
-                const errorMessage = payload?.message || "Erreur lors du vote, réessaie."
-                if (response.status === 401) {
+            if (!result.ok) {
+                if (result.status === 401) {
                     toast.info("Connecte-toi pour voter !")
+                } else if (result.status === 409) {
+                    const message = result.message || "Tu as déjà voté pour cette paire ce mois-ci !"
+                    if (message.toLowerCase().includes("limite")) {
+                        toast.error(message)
+                    } else {
+                        toast.info(message)
+                    }
                 } else {
-                    toast.error(errorMessage)
+                    toast.error(result.message || "Erreur lors du vote, réessaie.")
                 }
                 return
             }
 
-            toast.success(payload?.message ?? "Ton vote a bien été pris en compte !")
-            setUserVoted(true)
-            setVotesCount(payload?.votes ?? votesCount + 1)
-        } catch {
+            toast.success(result.message || "Ton vote a bien été pris en compte !")
+            await refreshVoteStatus()
+        } catch (error) {
             setLoading(false)
+            console.error("Failed to vote", error)
             toast.error("Erreur lors du vote, réessaie.")
         }
     }
@@ -192,34 +187,27 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
 
         setLoading(true)
         try {
-            const response = await fetch("/api/votes", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ productId: product.id }),
-            })
-
-            const payload = await response.json()
+            const result = await removeVoteForProduct(product.id)
             setLoading(false)
             setShowUnvoteConfirm(false)
 
-            if (!response.ok) {
-                const message = payload?.message || "Impossible de retirer ton like."
-                if (response.status === 401) {
+            if (!result.ok) {
+                if (result.status === 401) {
                     toast.info("Connecte-toi pour gérer tes likes.")
-                } else if (response.status === 404) {
-                    toast.info(message)
+                } else if (result.status === 404) {
+                    toast.info(result.message || "Aucun like récent à retirer.")
                 } else {
-                    toast.error(message)
+                    toast.error(result.message || "Impossible de retirer ton like, réessaie.")
                 }
                 return
             }
 
-            toast.success(payload?.message ?? "Ton like a bien été retiré.")
-            setUserVoted(false)
-            setVotesCount(payload?.votes ?? Math.max(0, votesCount - 1))
-        } catch {
+            toast.success(result.message || "Ton like a bien été retiré.")
+            await refreshVoteStatus()
+        } catch (error) {
             setLoading(false)
             setShowUnvoteConfirm(false)
+            console.error("Failed to remove vote", error)
             toast.error("Impossible de retirer ton like, réessaie.")
         }
     }

@@ -62,6 +62,56 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Ton vote a bien été pris en compte !", votes: count ?? 0 });
 }
 
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get("productId");
+
+    if (!productId) {
+        return NextResponse.json({ message: "productId manquant" }, { status: 400 });
+    }
+
+    const supabase = supabaseRoute();
+    const windowStart = getVoteWindowStart();
+
+    const { count, error: countError } = await supabase
+        .from("votes")
+        .select("*", { count: "exact", head: true })
+        .eq("product_id", productId)
+        .gte("created_at", windowStart);
+
+    if (countError) {
+        return NextResponse.json({ message: "Impossible de récupérer les votes" }, { status: 500 });
+    }
+
+    let userVoted = false;
+
+    const {
+        data: { user },
+        error: userError,
+    } = await supabase.auth.getUser();
+
+    if (!userError && user) {
+        const { data: userVotes, error: userVoteError } = await supabase
+            .from("votes")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("product_id", productId)
+            .gte("created_at", windowStart)
+            .limit(1);
+
+        if (userVoteError) {
+            return NextResponse.json(
+                { message: "Impossible de vérifier tes votes" },
+                { status: 500 }
+            );
+        }
+
+        userVoted = !!(userVotes && userVotes.length > 0);
+    }
+
+    return NextResponse.json({ votes: count ?? 0, userVoted });
+}
+
 export async function DELETE(request: Request) {
     let productId: string | undefined;
 

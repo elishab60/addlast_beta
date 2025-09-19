@@ -1,17 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Heart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
-import { getVoteWindowStart } from "@/lib/voteWindow";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import {
+    fetchVoteStatus,
+    voteForProduct,
+    removeVoteForProduct,
+} from "@/lib/voteApi";
 
 type ProductCardProps = {
     product: {
@@ -32,31 +35,21 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false);
+    const userId = user?.id;
+
+    const refreshVoteStatus = useCallback(async () => {
+        try {
+            const status = await fetchVoteStatus(product.id);
+            setVotesCount(status.votes);
+            setUserVoted(userId ? status.userVoted : false);
+        } catch (error) {
+            console.error("Failed to fetch vote status", error);
+        }
+    }, [product.id, userId]);
 
     useEffect(() => {
-        fetchVotes();
-        if (user) checkUserVote();
-        // eslint-disable-next-line
-    }, [user]);
-
-    async function fetchVotes() {
-        const { count } = await supabase
-            .from("votes")
-            .select("*", { count: "exact", head: true })
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart());
-        setVotesCount(count || 0);
-    }
-
-    async function checkUserVote() {
-        const { data } = await supabase
-            .from("votes")
-            .select("*")
-            .eq("user_id", user?.id)
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart());
-        setUserVoted(!!(data && data.length));
-    }
+        refreshVoteStatus();
+    }, [refreshVoteStatus]);
 
     async function handleVote(e: React.MouseEvent) {
         e.preventDefault();
@@ -73,35 +66,33 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         }
 
         setLoading(true);
-        const { data: userVotes } = await supabase
-            .from("votes")
-            .select("*")
-            .eq("user_id", user.id)
-            .gte("created_at", getVoteWindowStart());
 
-        if (userVotes?.find((v) => v.product_id === product.id)) {
-            toast.info("Tu as déjà voté pour cette paire ce mois-ci !");
+        try {
+            const result = await voteForProduct(product.id);
             setLoading(false);
-            return;
-        }
-        if ((userVotes?.length || 0) >= 2) {
-            setShowModal(true);
-            setLoading(false);
-            return;
-        }
 
-        const { error } = await supabase.from("votes").insert({
-            user_id: user.id,
-            product_id: product.id,
-        });
-        setLoading(false);
+            if (!result.ok) {
+                if (result.status === 401) {
+                    toast.info("Connecte-toi pour voter !");
+                } else if (result.status === 409) {
+                    const message = result.message || "Tu as déjà voté pour cette paire ce mois-ci !";
+                    if (message.toLowerCase().includes("limite")) {
+                        setShowModal(true);
+                    } else {
+                        toast.info(message);
+                    }
+                } else {
+                    toast.error(result.message || "Erreur lors du vote, réessaie.");
+                }
+                return;
+            }
 
-        if (!error) {
-            toast.success("Ton vote a bien été pris en compte !");
-            setUserVoted(true);
-            fetchVotes();
+            toast.success(result.message || "Ton vote a bien été pris en compte !");
+            await refreshVoteStatus();
             if (onVoted) onVoted();
-        } else {
+        } catch (error) {
+            setLoading(false);
+            console.error("Failed to vote", error);
             toast.error("Erreur lors du vote, réessaie.");
         }
     }
@@ -110,31 +101,31 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         if (!user) return;
 
         setLoading(true);
-        const { data, error } = await supabase
-            .from("votes")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart())
-            .select("id");
+        try {
+            const result = await removeVoteForProduct(product.id);
+            setLoading(false);
+            setShowUnvoteConfirm(false);
 
-        setLoading(false);
-        setShowUnvoteConfirm(false);
+            if (!result.ok) {
+                if (result.status === 401) {
+                    toast.info("Connecte-toi pour gérer tes likes.");
+                } else if (result.status === 404) {
+                    toast.info(result.message || "Aucun like récent à retirer.");
+                } else {
+                    toast.error(result.message || "Impossible de retirer ton like, réessaie.");
+                }
+                return;
+            }
 
-        if (error) {
+            toast.success(result.message || "Ton like a bien été retiré.");
+            await refreshVoteStatus();
+            if (onVoted) onVoted();
+        } catch (error) {
+            setLoading(false);
+            setShowUnvoteConfirm(false);
+            console.error("Failed to remove vote", error);
             toast.error("Impossible de retirer ton like, réessaie.");
-            return;
         }
-
-        if (!data || data.length === 0) {
-            toast.info("Aucun like récent à retirer.");
-            return;
-        }
-
-        toast.success("Ton like a bien été retiré.");
-        setUserVoted(false);
-        fetchVotes();
-        if (onVoted) onVoted();
     }
 
     const percent = Math.min(100, (votesCount / product.goal_likes) * 100);
