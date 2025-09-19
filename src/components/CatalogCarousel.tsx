@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -77,6 +78,7 @@ export default function CatalogGrid({
 /* -------------------- Card avec logique de vote -------------------- */
 
 function GridCard({ product, user }: { product: Product; user: User | null }) {
+    const router = useRouter()
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -193,111 +195,125 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         (votesCount / (product.goal_likes > 0 ? product.goal_likes : 1)) * 100
     )
 
+    function handleCardActivate() {
+        router.push(`/products/${product.id}`)
+    }
+
+    function handleCardKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "Enter" || event.key === " " || event.key === "Space") {
+            event.preventDefault()
+            handleCardActivate()
+        }
+    }
+
     return (
-        <Link
-            href={`/products/${product.id}`}
-            className="block group cursor-pointer"
-            prefetch={false}
+        <Card
+            role="link"
+            tabIndex={0}
+            onClick={handleCardActivate}
+            onKeyDown={handleCardKeyDown}
+            className="group cursor-pointer border border-black/20 hover:border-black transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#7CFF6B]"
         >
-            <Card className="border border-black/20 hover:border-black transition-all duration-300 bg-white">
-                <CardHeader className="pb-2">
-                    {/* Image carrée */}
-                    <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                        <img
-                            src={product.image_url || "/placeholder.svg"}
-                            alt={product.name}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            loading="lazy"
-                            decoding="async"
-                        />
-                    </div>
-
-                    <CardTitle className="mt-3 text-lg font-semibold truncate text-black">
-                        {product.name}
-                    </CardTitle>
-                    <div className="text-sm text-neutral-500">{product.brand}</div>
-                </CardHeader>
-
-                <CardContent className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                        <span className="font-bold text-xl text-black">{product.price}€</span>
-
-                        {/* Bouton like — shadcn monochrome */}
-                        <Button
-                            variant={userVoted ? "default" : "outline"}
-                            disabled={loading}
-                            onClick={handleVote}
-                            size="icon"
-                            className={
-                                userVoted
-                                    ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-white hover:text-black"
-                                    : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
-                            }
-                            aria-label={userVoted ? "Retirer mon like" : "Voter"}
-                            aria-pressed={userVoted}
-                        >
-                            <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#000000" : "none"} />
-                        </Button>
-                    </div>
-
-                    {/* Progress likes */}
-                    <div>
-                        <div className="flex justify-between text-xs text-neutral-500 mb-1">
-              <span>
-                {votesCount} / {product.goal_likes} likes
-              </span>
-                            <span>{Math.round(percent)}%</span>
-                        </div>
-                        <Progress value={percent} className="h-2 rounded-full" />
-                    </div>
-
-                    {/* Bandeau d'état sous la progressbar */}
-                    <StatusBand
-                        status={product.status}
-                        votesCount={votesCount}
-                        goal_likes={product.goal_likes}
+            <CardHeader className="pb-2">
+                {/* Image carrée */}
+                <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
+                    <img
+                        src={product.image_url || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
                     />
+                </div>
 
-                </CardContent>
+                <CardTitle className="mt-3 text-lg font-semibold truncate text-black">
+                    {product.name}
+                </CardTitle>
+                <div className="text-sm text-neutral-500">{product.brand}</div>
+            </CardHeader>
 
-                {/* Modal limite de votes */}
-                <Dialog open={showModal} onOpenChange={setShowModal}>
-                    <DialogContent className="max-w-sm">
-                        <DialogHeader>
-                            <DialogTitle>Limite de votes atteinte</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-2 text-sm">
-                            <p>
-                                Tu as déjà voté pour 2 paires différentes ce mois-ci.
-                                <br />
-                                Retente le mois prochain ou retire un vote depuis ton profil.
-                            </p>
-                        </div>
-                        <Button onClick={() => setShowModal(false)} className="mt-2 w-full">
-                            Fermer
-                        </Button>
-                    </DialogContent>
-                </Dialog>
+            <CardContent className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <span className="font-bold text-xl text-black">{product.price}€</span>
 
-                <ConfirmDialog
-                    open={showUnvoteConfirm}
-                    onOpenChange={setShowUnvoteConfirm}
-                    title="Retirer ton like ?"
-                    description="Cela libère un vote que tu pourras utiliser sur une autre paire."
-                    confirmLabel="Retirer"
-                    onConfirm={handleUnvote}
-                    confirmLoading={loading}
+                    {/* Bouton like — shadcn monochrome */}
+                    <Button
+                        variant={userVoted ? "default" : "outline"}
+                        disabled={loading}
+                        onClick={handleVote}
+                        size="icon"
+                        className={
+                            userVoted
+                                ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-white hover:text-black"
+                                : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
+                        }
+                        aria-label={userVoted ? "Retirer mon like" : "Voter"}
+                        aria-pressed={userVoted}
+                    >
+                        <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#000000" : "none"} />
+                    </Button>
+                </div>
+
+                {/* Progress likes */}
+                <div>
+                    <div className="flex justify-between text-xs text-neutral-500 mb-1">
+            <span>
+              {votesCount} / {product.goal_likes} likes
+            </span>
+                        <span>{Math.round(percent)}%</span>
+                    </div>
+                    <Progress value={percent} className="h-2 rounded-full" />
+                </div>
+
+                {/* Bandeau d'état sous la progressbar */}
+                <StatusBand
+                    status={product.status}
+                    votesCount={votesCount}
+                    goal_likes={product.goal_likes}
                 />
-            </Card>
-        </Link>
+            </CardContent>
+
+            {/* Modal limite de votes */}
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Limite de votes atteinte</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-2 text-sm">
+                        <p>
+                            Tu as déjà voté pour 2 paires différentes ce mois-ci.
+                            <br />
+                            Retente le mois prochain ou retire un vote depuis ton profil.
+                        </p>
+                    </div>
+                    <Button onClick={() => setShowModal(false)} className="mt-2 w-full">
+                        Fermer
+                    </Button>
+                </DialogContent>
+            </Dialog>
+
+            <ConfirmDialog
+                open={showUnvoteConfirm}
+                onOpenChange={setShowUnvoteConfirm}
+                title="Retirer ton like ?"
+                description="Cela libère un vote que tu pourras utiliser sur une autre paire."
+                confirmLabel="Retirer"
+                onConfirm={handleUnvote}
+                confirmLoading={loading}
+            />
+        </Card>
     )
 }
 
 /* -------------------- Bandeau d'état (sous la progressbar) -------------------- */
 
-function StatusBand({ status, votesCount, goal_likes }: {
-    status: Product["status"],
-    votesCount: number,
+function StatusBand({
+                        status,
+                        votesCount,
+                        goal_likes,
+                    }: {
+    status: Product["status"]
+    votesCount: number
     goal_likes: number
 }) {
     const base =
@@ -312,6 +328,9 @@ function StatusBand({ status, votesCount, goal_likes }: {
     if (status === "En vote") {
         return <div className={`${base} bg-black text-white border-black`}>En vote</div>
     }
-    return <div className={`${base} bg-neutral-100 text-neutral-600 border-neutral-300`}>Rupture</div>
+    return (
+        <div className={`${base} bg-neutral-100 text-neutral-600 border-neutral-300`}>
+            Rupture
+        </div>
+    )
 }
-

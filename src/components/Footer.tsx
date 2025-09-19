@@ -3,104 +3,71 @@ import { Input } from "@/components/ui/input"
 
 export default function Footer() {
     return (
-        <footer className="bg-white border-t border-black relative overflow-hidden">
-            <div className="absolute inset-0 opacity-5">
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-black/5 to-transparent"></div>
-                <div className="absolute top-4 left-4 w-2 h-2 bg-black rounded-full animate-pulse"></div>
-                <div className="absolute top-8 right-8 w-1 h-1 bg-black rounded-full animate-pulse delay-1000"></div>
-                <div className="absolute bottom-12 left-12 w-1.5 h-1.5 bg-black rounded-full animate-pulse delay-500"></div>
-            </div>
+        <footer className="relative overflow-hidden border-t border-[#7CFF6B]/30 bg-black text-white">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(124,255,107,0.08),_transparent_55%)]" />
 
-            <div className="container mx-auto px-4 py-12 relative z-10">
+            <div className="container relative z-10 mx-auto px-4 py-12">
                 <div className="flex flex-col items-center space-y-8">
                     {/* Brand */}
-                    <div className="text-center group">
-                        <div className="relative">
-                            <h3 className="text-2xl font-bold text-black transition-all duration-300 group-hover:scale-105 group-hover:tracking-wider">
-                                addlast
-                            </h3>
-                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></div>
+                    <div className="text-center">
+                        <div className="mt-2 text-3xl font-bold text-white transition-colors duration-300">
+                            add<span className="text-[#7CFF6B]">last</span>
                         </div>
                     </div>
 
                     {/* Newsletter */}
-                    <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md group">
-                        <div className="relative flex-1">
-                            <Input
-                                type="email"
-                                placeholder="Votre email"
-                                className="border-black focus:ring-black focus:border-black transition-all duration-300 focus:shadow-lg focus:shadow-black/10 group-hover:border-gray-600"
-                            />
-                            <div className="absolute inset-0 border border-transparent group-focus-within:border-black/20 rounded-md transition-all duration-300 pointer-events-none"></div>
-                        </div>
-                        <Button className="bg-black text-white hover:bg-gray-800 whitespace-nowrap transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-black/20 active:scale-95">
-                            Rejoindre la newsletter
+                    <div className="flex w-full max-w-lg flex-col gap-3 sm:flex-row">
+                        <Input
+                            type="email"
+                            placeholder="Ton email pour ne rien manquer"
+                            className="h-11 flex-1 rounded-full border-white/20 bg-white/5 text-white placeholder:text-white/60 focus-visible:border-[#7CFF6B] focus-visible:ring-[#7CFF6B]/70"
+                        />
+                        <Button className="h-11 rounded-full bg-[#7CFF6B] px-6 font-semibold text-black transition-colors duration-300 hover:bg-[#68F081]">
+                            Rejoindre
                         </Button>
                     </div>
 
                     {/* Navigation */}
-                    <nav className="flex flex-wrap justify-center gap-6 text-sm">
+                    <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-medium">
                         {[
                             { href: "/products", label: "Catalogue" },
                             { href: "/votes", label: "Votes" },
                             { href: "/precommandes", label: "Précommandes" },
-
-                        ].map((link, index) => (
+                        ].map((link) => (
                             <a
                                 key={link.href}
                                 href={link.href}
-                                className="text-black font-medium relative group transition-all duration-300 hover:scale-105"
-                                style={{ animationDelay: `${index * 100}ms` }}
+                                className="group relative text-white/70 transition-colors duration-200 hover:text-[#7CFF6B]"
                             >
-                                <span className="relative z-10">{link.label}</span>
-                                <div className="absolute inset-0 bg-black scale-0 group-hover:scale-100 transition-transform duration-300 rounded-sm opacity-10"></div>
-                                <div className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></div>
+                                {link.label}
+                                <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-[#7CFF6B] transition-all duration-200 group-hover:w-full" />
                             </a>
                         ))}
                     </nav>
 
                     {/* Legal */}
-                    <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-600">
-                        <a
-                            href="/mentions-legales"
-                            className="hover:text-black transition-all duration-300 hover:scale-105 relative group"
-                        >
-                            Mentions légales
-                            <div
-                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
-                        </a>
-                        <a
-                            href="/confidentialite"
-                            className="hover:text-black transition-all duration-300 hover:scale-105 relative group"
-                        >
-                            Confidentialité
-                            <div
-                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
-                        </a>
-                        <a href="/cgv"
-                           className="hover:text-black transition-all duration-300 hover:scale-105 relative group">
-                            CGV
-                            <div
-                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
-                        </a>
-                        <a href="/cgu"
-                           className="hover:text-black transition-all duration-300 hover:scale-105 relative group">
-                            CGU
-                            <div
-                                className="absolute -bottom-0.5 left-0 w-0 h-px bg-black transition-all duration-300 group-hover:w-full"></div>
-                        </a>
+                    <div className="flex flex-wrap justify-center gap-4 text-xs text-white/60">
+                        {[
+                            { href: "/mentions-legales", label: "Mentions légales" },
+                            { href: "/confidentialite", label: "Confidentialité" },
+                            { href: "/cgv", label: "CGV" },
+                            { href: "/cgu", label: "CGU" },
+                        ].map((link) => (
+                            <a
+                                key={link.href}
+                                href={link.href}
+                                className="group relative transition-colors duration-200 hover:text-[#7CFF6B]"
+                            >
+                                {link.label}
+                                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#7CFF6B] transition-all duration-200 group-hover:w-full" />
+                            </a>
+                        ))}
                     </div>
 
-                    {/* Copyright */}
-                    <div className="relative">
-                        <div className="flex items-center gap-3">
-                            <div
-                                className="w-8 h-px bg-gradient-to-r from-transparent via-black to-transparent animate-pulse"></div>
-                            <p className="text-xs text-gray-600 text-center transition-all duration-300 hover:text-black">
-                                © 2025 addlast. Tous droits réservés.
-                            </p>
-                            <div className="w-8 h-px bg-gradient-to-r from-transparent via-black to-transparent animate-pulse"></div>
-                        </div>
+                    <div className="flex items-center gap-3 text-xs text-white/50">
+                        <span className="h-px w-8 bg-gradient-to-r from-transparent via-[#7CFF6B]/40 to-transparent" />
+                        © {new Date().getFullYear()} addlast. Tous droits réservés.
+                        <span className="h-px w-8 bg-gradient-to-r from-transparent via-[#7CFF6B]/40 to-transparent" />
                     </div>
                 </div>
             </div>

@@ -88,12 +88,12 @@ export default function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
-            <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4">
+        <header className="sticky top-0 z-50 w-full border-b border-[#7CFF6B]/30 bg-black/95 backdrop-blur">
+            <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4 text-white">
                 {/* Logo */}
                 <Link href="/" className="flex items-center group">
-          <span className="font-extrabold text-2xl tracking-tight text-black group-hover:text-primary transition-colors">
-            add<span className="text-primary">last</span>
+          <span className="font-extrabold text-2xl tracking-tight text-white transition-colors group-hover:text-[#7CFF6B]">
+            add<span className="text-[#7CFF6B]">last</span>
           </span>
                 </Link>
 
@@ -104,11 +104,17 @@ export default function Header() {
                             key={item.name}
                             href={item.href}
                             className={`text-sm font-semibold transition-colors relative group min-w-[110px] text-center ${
-                                pathname === item.href ? "text-black" : "text-gray-700 hover:text-black"
+                                pathname === item.href
+                                    ? "text-[#7CFF6B]"
+                                    : "text-white/70 hover:text-[#7CFF6B]"
                             }`}
                         >
                             {item.name}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                            <span
+                                className={`absolute -bottom-1 left-0 h-0.5 transition-all group-hover:w-full bg-[#7CFF6B] ${
+                                    pathname === item.href ? "w-full" : "w-0"
+                                }`}
+                            ></span>
                         </Link>
                     ))}
                 </nav>
@@ -121,7 +127,7 @@ export default function Header() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-sm font-semibold text-gray-600 hover:text-black flex items-center"
+                                className="text-sm font-semibold text-white/80 hover:text-[#7CFF6B] flex items-center hover:bg-white/5"
                                 onClick={() => router.push("/sign-in")}
                             >
                                 <UserIcon className="w-4 h-4 mr-2" />
@@ -133,28 +139,43 @@ export default function Header() {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-gray-600 hover:text-black"
+                                        className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
                                     >
                                         <UserIcon className="w-5 h-5" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 shadow-xl rounded-2xl mt-2">
-                                    <DropdownMenuItem asChild>
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-56 shadow-xl rounded-2xl mt-2 border border-[#7CFF6B]/30 bg-black text-white"
+                                >
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                    >
                                         <Link href="/account">Mon profil</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                    >
                                         <Link href="/orders">Mes commandes</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     {isAdmin && (
                                         <>
-                                            <DropdownMenuItem asChild>
+                                            <DropdownMenuItem
+                                                asChild
+                                                className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                            >
                                                 <Link href="/admin">Admin</Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                         </>
                                     )}
-                                    <DropdownMenuItem onClick={handleLogout}>
+                                    <DropdownMenuItem
+                                        onClick={handleLogout}
+                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                    >
                                         Déconnexion
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -164,7 +185,11 @@ export default function Header() {
 
                     {/* Likes */}
                     <Link href="/wishlist">
-                        <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                        >
                             <Heart className="w-5 h-5" />
                         </Button>
                     </Link>
@@ -174,11 +199,11 @@ export default function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="relative text-gray-600 hover:text-black"
+                            className="relative text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
                         >
                             <ShoppingCart className="w-5 h-5" />
                             {count > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center font-medium">
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#7CFF6B] text-black text-xs rounded-full flex items-center justify-center font-medium">
                   {count}
                 </span>
                             )}
@@ -190,7 +215,11 @@ export default function Header() {
                 <div className="md:hidden flex items-center space-x-2">
                     {/* Likes */}
                     <Link href="/wishlist">
-                        <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                        >
                             <Heart className="w-5 h-5" />
                         </Button>
                     </Link>
@@ -200,11 +229,11 @@ export default function Header() {
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="relative text-gray-600 hover:text-black"
+                            className="relative text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
                         >
                             <ShoppingCart className="w-5 h-5" />
                             {count > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center font-medium">
+                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#7CFF6B] text-black text-xs rounded-full flex items-center justify-center font-medium">
                   {count}
                 </span>
                             )}
@@ -214,12 +243,19 @@ export default function Header() {
                     {/* Burger menu */}
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-gray-600 hover:text-black">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                            >
                                 <Menu className="w-5 h-5" />
                                 <span className="sr-only">Ouvrir le menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right" className="w-80 bg-white text-black">
+                        <SheetContent
+                            side="right"
+                            className="w-80 bg-black text-white border-l border-[#7CFF6B]/30"
+                        >
                             <div className="flex flex-col space-y-6 mt-6">
                                 <nav className="flex flex-col space-y-4">
                                     {navigation.map((item) => (
@@ -227,17 +263,17 @@ export default function Header() {
                                             key={item.name}
                                             href={item.href}
                                             onClick={() => setIsOpen(false)}
-                                            className="text-lg font-semibold hover:text-primary transition-colors"
+                                            className="text-lg font-semibold text-white/80 hover:text-[#7CFF6B] transition-colors"
                                         >
                                             {item.name}
                                         </Link>
                                     ))}
                                 </nav>
-                                <div className="flex flex-col space-y-3 pt-6 border-t border-gray-200">
+                                <div className="flex flex-col space-y-3 pt-6 border-t border-white/10">
                                     {!user ? (
                                         <Button
                                             variant="ghost"
-                                            className="justify-start text-gray-600 hover:text-black"
+                                            className="justify-start text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
                                             onClick={() => {
                                                 setIsOpen(false);
                                                 router.push("/sign-in");
@@ -251,14 +287,14 @@ export default function Header() {
                                             <Link
                                                 href="/account"
                                                 onClick={() => setIsOpen(false)}
-                                                className="text-gray-700 hover:text-black"
+                                                className="text-white/80 hover:text-[#7CFF6B]"
                                             >
                                                 Mon profil
                                             </Link>
                                             <Link
                                                 href="/orders"
                                                 onClick={() => setIsOpen(false)}
-                                                className="text-gray-700 hover:text-black"
+                                                className="text-white/80 hover:text-[#7CFF6B]"
                                             >
                                                 Mes commandes
                                             </Link>
@@ -266,7 +302,7 @@ export default function Header() {
                                                 <Link
                                                     href="/admin"
                                                     onClick={() => setIsOpen(false)}
-                                                    className="text-gray-700 hover:text-black"
+                                                    className="text-white/80 hover:text-[#7CFF6B]"
                                                 >
                                                     Admin
                                                 </Link>
@@ -276,7 +312,7 @@ export default function Header() {
                                                     handleLogout();
                                                     setIsOpen(false);
                                                 }}
-                                                className="text-left text-gray-700 hover:text-black"
+                                                className="text-left text-white/80 hover:text-[#7CFF6B]"
                                             >
                                                 Déconnexion
                                             </button>
