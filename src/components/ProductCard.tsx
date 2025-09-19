@@ -58,6 +58,14 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         setUserVoted(!!(data && data.length));
     }
 
+    async function parseResponse(response: Response) {
+        try {
+            return await response.json();
+        } catch {
+            return null;
+        }
+    }
+
     async function handleVote(e: React.MouseEvent) {
         e.preventDefault();
         e.stopPropagation();
@@ -73,36 +81,42 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         }
 
         setLoading(true);
-        const { data: userVotes } = await supabase
-            .from("votes")
-            .select("*")
-            .eq("user_id", user.id)
-            .gte("created_at", getVoteWindowStart());
 
-        if (userVotes?.find((v) => v.product_id === product.id)) {
-            toast.info("Tu as déjà voté pour cette paire ce mois-ci !");
-            setLoading(false);
-            return;
-        }
-        if ((userVotes?.length || 0) >= 2) {
-            setShowModal(true);
-            setLoading(false);
-            return;
-        }
+        try {
+            const response = await fetch("/api/votes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+            });
 
-        const { error } = await supabase.from("votes").insert({
-            user_id: user.id,
-            product_id: product.id,
-        });
-        setLoading(false);
+            const payload = await parseResponse(response);
 
-        if (!error) {
-            toast.success("Ton vote a bien été pris en compte !");
+            if (!response.ok) {
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour voter !");
+                } else if (response.status === 409) {
+                    if (payload?.reason === "limit") {
+                        setShowModal(true);
+                    } else if (payload?.reason === "duplicate") {
+                        setUserVoted(true);
+                        toast.info(payload?.message ?? "Tu as déjà voté pour cette paire.");
+                    } else {
+                        toast.error(payload?.message ?? "Impossible d'enregistrer ton vote.");
+                    }
+                } else {
+                    toast.error(payload?.message ?? "Erreur lors du vote, réessaie.");
+                }
+                return;
+            }
+
+            toast.success(payload?.message ?? "Ton vote a bien été pris en compte !");
             setUserVoted(true);
-            fetchVotes();
+            setVotesCount((prev) => (typeof payload?.votes === "number" ? payload.votes : prev + 1));
             if (onVoted) onVoted();
-        } else {
+        } catch {
             toast.error("Erreur lors du vote, réessaie.");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -110,31 +124,39 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         if (!user) return;
 
         setLoading(true);
-        const { data, error } = await supabase
-            .from("votes")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart())
-            .select("id");
 
-        setLoading(false);
-        setShowUnvoteConfirm(false);
+        try {
+            const response = await fetch("/api/votes", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+            });
 
-        if (error) {
+            const payload = await parseResponse(response);
+            setShowUnvoteConfirm(false);
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour gérer tes likes.");
+                } else if (response.status === 404) {
+                    toast.info(payload?.message ?? "Aucun like récent à retirer.");
+                } else {
+                    toast.error(payload?.message ?? "Impossible de retirer ton like, réessaie.");
+                }
+                return;
+            }
+
+            toast.success(payload?.message ?? "Ton like a bien été retiré.");
+            setUserVoted(false);
+            setVotesCount((prev) =>
+                typeof payload?.votes === "number" ? payload.votes : Math.max(0, prev - 1)
+            );
+            if (onVoted) onVoted();
+        } catch {
             toast.error("Impossible de retirer ton like, réessaie.");
-            return;
+        } finally {
+            setLoading(false);
         }
-
-        if (!data || data.length === 0) {
-            toast.info("Aucun like récent à retirer.");
-            return;
-        }
-
-        toast.success("Ton like a bien été retiré.");
-        setUserVoted(false);
-        fetchVotes();
-        if (onVoted) onVoted();
     }
 
     const percent = Math.min(100, (votesCount / product.goal_likes) * 100);
