@@ -5,8 +5,7 @@ export default function HomeHowItWorks() {
                 <h2 className="text-2xl md:text-3xl font-bold mb-7 text-center">Le process d’achat Addlast</h2>
                 <ol className="space-y-6 text-lg text-gray-700">
                     <li>
-                        <b>1. Vote :</b> Parcours le catalogue et like tes paires préférées.<br/>
-                        Tu as droit à 2 votes par mois pour faire entendre ta voix !
+                        <b>1. Vote :</b> Parcours le catalogue et like librement tes paires préférées.
                     </li>
                     <li>
                         <b>2. Sélection :</b> Les paires ayant atteint leur objectif de likes sont sélectionnées pour la précommande.
