@@ -20,6 +20,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
+import { getVoteWindowStart } from "@/lib/voteWindow"
 import type { User } from "@supabase/supabase-js"
 
 type Product = {
@@ -87,6 +88,7 @@ export default function ProductPage() {
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
         setVotesCount(count || 0)
     }, [product])
 
@@ -97,6 +99,7 @@ export default function ProductPage() {
             .select("product_id")
             .eq("user_id", user.id)
             .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
         setUserVoted(!!(data && data.length))
     }, [product, user])
 
@@ -130,8 +133,6 @@ export default function ProductPage() {
                 const errorMessage = payload?.message || "Erreur lors du vote"
                 if (response.status === 401) {
                     toast.info("Connecte-toi pour voter !")
-                } else if (response.status === 409) {
-                    toast.info(payload?.message ?? "Tu as déjà liké cette paire.")
                 } else {
                     toast.error(errorMessage)
                 }
@@ -139,7 +140,7 @@ export default function ProductPage() {
                 return
             }
 
-            toast.success(payload?.message ?? "Ton like a bien été pris en compte !")
+            toast.success(payload?.message ?? "Vote enregistré ✅")
             setUserVoted(true)
             setVotesCount(payload?.votes ?? votesCount + 1)
             setVoteLoading(false)

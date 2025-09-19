@@ -1,20 +1,18 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Heart } from "lucide-react"
 import { toast } from "sonner"
+import { supabase } from "@/lib/supabase"
 import type { User } from "@supabase/supabase-js"
+import { getVoteWindowStart } from "@/lib/voteWindow"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
-import {
-    fetchVoteStatus,
-    voteForProduct,
-    removeVoteForProduct,
-} from "@/lib/voteApi"
 
 type Product = {
     id: string
@@ -84,22 +82,33 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
     const [votesCount, setVotesCount] = useState(0)
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [showModal, setShowModal] = useState(false)
     const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false)
-    const userId = user?.id
-
-    const refreshVoteStatus = useCallback(async () => {
-        try {
-            const status = await fetchVoteStatus(product.id)
-            setVotesCount(status.votes)
-            setUserVoted(userId ? status.userVoted : false)
-        } catch (error) {
-            console.error("Failed to fetch vote status", error)
-        }
-    }, [product.id, userId])
 
     useEffect(() => {
-        refreshVoteStatus()
-    }, [refreshVoteStatus])
+        fetchVotes()
+        if (user) checkUserVote()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, product.id])
+
+    async function fetchVotes() {
+        const { count } = await supabase
+            .from("votes")
+            .select("*", { count: "exact", head: true })
+            .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
+        setVotesCount(count || 0)
+    }
+
+    async function checkUserVote() {
+        const { data } = await supabase
+            .from("votes")
+            .select("product_id")
+            .eq("user_id", user?.id)
+            .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
+        setUserVoted(!!(data && data.length))
+    }
 
     async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
@@ -117,26 +126,36 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
 
         setLoading(true)
 
-        try {
-            const result = await voteForProduct(product.id)
-            setLoading(false)
+        const { data: userVotes } = await supabase
+            .from("votes")
+            .select("product_id")
+            .eq("user_id", user.id)
+            .gte("created_at", getVoteWindowStart())
 
-            if (!result.ok) {
-                if (result.status === 401) {
-                    toast.info("Connecte-toi pour voter !")
-                } else if (result.status === 409) {
-                    toast.info(result.message || "Tu as déjà liké cette paire.")
-                } else {
-                    toast.error(result.message || "Erreur lors du vote, réessaie.")
-                }
-                return
-            }
-
-            toast.success(result.message || "Ton vote a bien été pris en compte !")
-            await refreshVoteStatus()
-        } catch (error) {
+        if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
+            toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
             setLoading(false)
-            console.error("Failed to vote", error)
+            return
+        }
+
+        if ((userVotes?.length || 0) >= 2) {
+            setShowModal(true)
+            setLoading(false)
+            return
+        }
+
+        const { error } = await supabase.from("votes").insert({
+            user_id: user.id,
+            product_id: product.id,
+        })
+
+        setLoading(false)
+
+        if (!error) {
+            toast.success("Ton vote a bien été pris en compte !")
+            setUserVoted(true)
+            fetchVotes()
+        } else {
             toast.error("Erreur lors du vote, réessaie.")
         }
     }
@@ -145,30 +164,30 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         if (!user) return
 
         setLoading(true)
-        try {
-            const result = await removeVoteForProduct(product.id)
-            setLoading(false)
-            setShowUnvoteConfirm(false)
+        const { data, error } = await supabase
+            .from("votes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
+            .select("id")
 
-            if (!result.ok) {
-                if (result.status === 401) {
-                    toast.info("Connecte-toi pour gérer tes likes.")
-                } else if (result.status === 404) {
-                    toast.info(result.message || "Aucun like récent à retirer.")
-                } else {
-                    toast.error(result.message || "Impossible de retirer ton like, réessaie.")
-                }
-                return
-            }
+        setLoading(false)
+        setShowUnvoteConfirm(false)
 
-            toast.success(result.message || "Ton like a bien été retiré.")
-            await refreshVoteStatus()
-        } catch (error) {
-            setLoading(false)
-            setShowUnvoteConfirm(false)
-            console.error("Failed to remove vote", error)
+        if (error) {
             toast.error("Impossible de retirer ton like, réessaie.")
+            return
         }
+
+        if (!data || data.length === 0) {
+            toast.info("Aucun like récent à retirer.")
+            return
+        }
+
+        toast.success("Ton like a bien été retiré.")
+        setUserVoted(false)
+        fetchVotes()
     }
 
     const percent = Math.min(
@@ -254,11 +273,30 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 />
             </CardContent>
 
+            {/* Modal limite de votes */}
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>Limite de votes atteinte</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-2 text-sm">
+                        <p>
+                            Tu as déjà voté pour 2 paires différentes ce mois-ci.
+                            <br />
+                            Retente le mois prochain ou retire un vote depuis ton profil.
+                        </p>
+                    </div>
+                    <Button onClick={() => setShowModal(false)} className="mt-2 w-full">
+                        Fermer
+                    </Button>
+                </DialogContent>
+            </Dialog>
+
             <ConfirmDialog
                 open={showUnvoteConfirm}
                 onOpenChange={setShowUnvoteConfirm}
                 title="Retirer ton like ?"
-                description="Cela retirera le like de cette paire, mais tu pourras toujours revenir la soutenir."
+                description="Cela libère un vote que tu pourras utiliser sur une autre paire."
                 confirmLabel="Retirer"
                 onConfirm={handleUnvote}
                 confirmLoading={loading}

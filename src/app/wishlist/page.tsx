@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { removeVoteForProduct } from "@/lib/voteApi";
+import { getVoteWindowStart } from "@/lib/voteWindow";
 
 
 type Product = {
@@ -35,17 +35,12 @@ export default function WishlistPage() {
         if (!user) return setLoading(false);
         const fetchLikes = async () => {
             setLoading(true);
-            const { data: votes, error } = await supabase
+            const { data: votes } = await supabase
                 .from("votes")
                 .select("product_id")
-                .eq("user_id", user.id);
-
-            if (error) {
-                toast.error("Impossible de récupérer tes likes.");
-                setLiked([]);
-                setLoading(false);
-                return;
-            }
+                .eq("user_id", user.id)
+                .gte("created_at", getVoteWindowStart())
+                .limit(2);
 
             if (votes && votes.length > 0) {
                 const { data: products } = await supabase
@@ -76,30 +71,30 @@ export default function WishlistPage() {
         if (!user || !confirmProduct) return;
 
         setActionLoading(true);
-        try {
-            const result = await removeVoteForProduct(confirmProduct.id);
-            setActionLoading(false);
+        const { data, error } = await supabase
+            .from("votes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("product_id", confirmProduct.id)
+            .gte("created_at", getVoteWindowStart())
+            .select("id");
 
-            if (!result.ok) {
-                if (result.status === 401) {
-                    toast.info("Connecte-toi pour gérer tes likes.");
-                } else if (result.status === 404) {
-                    toast.info(result.message || "Aucun like récent à retirer.");
-                } else {
-                    toast.error(result.message || "Impossible de retirer ce like, réessaie.");
-                }
-                setConfirmProduct(null);
-                return;
-            }
+        setActionLoading(false);
 
-            toast.success(result.message || "Le produit a bien été retiré de tes likes.");
-            setLiked((prev) => prev.filter((p) => p.id !== confirmProduct.id));
-            setConfirmProduct(null);
-        } catch (error) {
-            setActionLoading(false);
-            console.error("Failed to remove like", error);
+        if (error) {
             toast.error("Impossible de retirer ce like, réessaie.");
+            return;
         }
+
+        if (!data || data.length === 0) {
+            toast.info("Aucun like récent à retirer.");
+            setConfirmProduct(null);
+            return;
+        }
+
+        toast.success("Le produit a bien été retiré de tes likes.");
+        setLiked((prev) => prev.filter((p) => p.id !== confirmProduct.id));
+        setConfirmProduct(null);
     };
 
     return (
