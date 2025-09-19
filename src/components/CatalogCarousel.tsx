@@ -302,7 +302,6 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                     onConfirm={handleUnvote}
                     confirmLoading={loading}
                 />
-        </Card>
     )
 }
 
