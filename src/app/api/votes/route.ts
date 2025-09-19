@@ -2,18 +2,52 @@ import { NextResponse } from "next/server";
 
 import { supabaseRoute, type SupabaseRouteResult } from "@/lib/supabaseRoute";
 
-type SessionUser = NonNullable<SupabaseRouteResult["session"]>["user"];
+type SessionUser = NonNullable<NonNullable<SupabaseRouteResult["session"]>["user"]>;
 
-function assertUserSession(session: SupabaseRouteResult["session"]): SessionUser | null {
-    if (!session || !session.user || !session.access_token) {
+async function getAuthenticatedUser(
+    supabase: SupabaseRouteResult["supabase"],
+    session: SupabaseRouteResult["session"]
+): Promise<SessionUser | null> {
+    console.debug("[votes] resolving authenticated user", {
+        hasSession: !!session,
+        hasAccessToken: !!session?.access_token,
+        expiresAt: session?.expires_at ?? null,
+        hasUserOnSession: !!session?.user,
+    });
+
+    if (!session || !session.access_token) {
+        console.debug("[votes] missing session or access token");
         return null;
     }
 
     if (session.expires_at && session.expires_at <= Math.floor(Date.now() / 1000)) {
+        console.debug("[votes] session expired", { expiresAt: session.expires_at });
         return null;
     }
 
-    return session.user;
+    if (session.user) {
+        console.debug("[votes] session already contains user", {
+            userId: session.user.id,
+        });
+        return session.user as SessionUser;
+    }
+
+    const { data, error } = await supabase.auth.getUser(session.access_token);
+
+    if (error || !data?.user) {
+        console.debug("[votes] supabase.auth.getUser failed", {
+            hasError: !!error,
+            errorMessage: error?.message,
+            hasUser: !!data?.user,
+        });
+        return null;
+    }
+
+    console.debug("[votes] fetched user from Supabase", {
+        userId: data.user.id,
+    });
+
+    return data.user as SessionUser;
 }
 
 export async function POST(request: Request) {
@@ -31,9 +65,16 @@ export async function POST(request: Request) {
     }
 
     const { supabase, session } = await supabaseRoute();
-    const user = assertUserSession(session);
+    const user = await getAuthenticatedUser(supabase, session);
+
+    console.debug("[votes][POST] request context", {
+        productId,
+        isAuthenticated: !!user,
+        userId: user?.id ?? null,
+    });
 
     if (!user) {
+        console.debug("[votes][POST] rejecting unauthenticated request");
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
     }
 
@@ -43,6 +84,14 @@ export async function POST(request: Request) {
         .eq("user_id", user.id)
         .eq("product_id", productId)
         .maybeSingle();
+
+    console.debug("[votes][POST] existing vote lookup", {
+        userId: user.id,
+        productId,
+        hasExistingVote: !!existingVote,
+        hasError: !!existingError,
+        errorMessage: existingError?.message,
+    });
 
     if (existingError) {
         return NextResponse.json({ message: "Impossible de vérifier tes likes" }, { status: 500 });
@@ -56,6 +105,13 @@ export async function POST(request: Request) {
         .from("votes")
         .insert({ user_id: user.id, product_id: productId });
 
+    console.debug("[votes][POST] inserting vote", {
+        userId: user.id,
+        productId,
+        hasInsertError: !!insertError,
+        insertErrorMessage: insertError?.message,
+    });
+
     if (insertError) {
         return NextResponse.json({ message: "Erreur lors du vote, réessaie." }, { status: 500 });
     }
@@ -64,6 +120,8 @@ export async function POST(request: Request) {
         .from("votes")
         .select("*", { count: "exact", head: true })
         .eq("product_id", productId);
+
+    console.debug("[votes][POST] final vote count", { productId, count: count ?? 0 });
 
     return NextResponse.json({ message: "Ton vote a bien été pris en compte !", votes: count ?? 0 });
 }
@@ -83,12 +141,25 @@ export async function GET(request: Request) {
         .select("*", { count: "exact", head: true })
         .eq("product_id", productId);
 
+    console.debug("[votes][GET] product vote count", {
+        productId,
+        count: count ?? 0,
+        hasError: !!countError,
+        errorMessage: countError?.message,
+    });
+
     if (countError) {
         return NextResponse.json({ message: "Impossible de récupérer les votes" }, { status: 500 });
     }
 
     let userVoted = false;
-    const user = assertUserSession(session);
+    const user = await getAuthenticatedUser(supabase, session);
+
+    console.debug("[votes][GET] request context", {
+        productId,
+        isAuthenticated: !!user,
+        userId: user?.id ?? null,
+    });
 
     if (user) {
         const { data: userVotes, error: userVoteError } = await supabase
@@ -97,6 +168,14 @@ export async function GET(request: Request) {
             .eq("user_id", user.id)
             .eq("product_id", productId)
             .limit(1);
+
+        console.debug("[votes][GET] user votes lookup", {
+            userId: user.id,
+            productId,
+            hasVotes: !!(userVotes && userVotes.length > 0),
+            hasError: !!userVoteError,
+            errorMessage: userVoteError?.message,
+        });
 
         if (userVoteError) {
             return NextResponse.json(
@@ -126,7 +205,13 @@ export async function DELETE(request: Request) {
     }
 
     const { supabase, session } = await supabaseRoute();
-    const user = assertUserSession(session);
+    const user = await getAuthenticatedUser(supabase, session);
+
+    console.debug("[votes][DELETE] request context", {
+        productId,
+        isAuthenticated: !!user,
+        userId: user?.id ?? null,
+    });
 
     if (!user) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
@@ -138,6 +223,14 @@ export async function DELETE(request: Request) {
         .eq("user_id", user.id)
         .eq("product_id", productId)
         .maybeSingle();
+
+    console.debug("[votes][DELETE] existing vote lookup", {
+        userId: user.id,
+        productId,
+        hasExistingVote: !!existingVote,
+        hasError: !!fetchError,
+        errorMessage: fetchError?.message,
+    });
 
     if (fetchError) {
         return NextResponse.json({ message: "Impossible de vérifier tes votes" }, { status: 500 });
@@ -153,6 +246,14 @@ export async function DELETE(request: Request) {
         .delete()
         .eq("id", voteId);
 
+    console.debug("[votes][DELETE] deleting vote", {
+        userId: user.id,
+        productId,
+        voteId,
+        hasDeleteError: !!deleteError,
+        deleteErrorMessage: deleteError?.message,
+    });
+
     if (deleteError) {
         return NextResponse.json({ message: "Erreur lors du retrait du like" }, { status: 500 });
     }
@@ -161,6 +262,8 @@ export async function DELETE(request: Request) {
         .from("votes")
         .select("*", { count: "exact", head: true })
         .eq("product_id", productId);
+
+    console.debug("[votes][DELETE] final vote count", { productId, count: count ?? 0 });
 
     return NextResponse.json({ message: "Ton like a bien été retiré.", votes: count ?? 0 });
 }
