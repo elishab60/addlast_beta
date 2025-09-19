@@ -13,6 +13,7 @@ export async function supabaseRoute(): Promise<SupabaseRouteResult> {
     const { url, anonKey } = getSupabaseEnv();
     const cookieStore = await cookies();
     const allCookies = cookieStore.getAll();
+
     const supabaseAuthCookies = allCookies
         .map((cookie) => cookie.name)
         .filter((name) => name.includes("sb-"));

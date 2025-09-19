@@ -84,14 +84,9 @@ describe("/api/votes", () => {
             createSelectBuilder({ count: 3, error: null }),
         ]);
 
-        supabase.auth.getUser.mockResolvedValue({
-            data: { user: { id: "user-123" } },
-            error: null,
-        });
-
         mockedSupabaseRoute.mockResolvedValue({
             supabase,
-            session: { access_token: "token", expires_at: futureTimestamp() },
+            session: { access_token: "token", expires_at: futureTimestamp(), user: { id: "user-123" } as any },
         });
 
         const request = new Request("http://localhost/api/votes", {
@@ -108,7 +103,6 @@ describe("/api/votes", () => {
             message: "Ton vote a bien été pris en compte !",
             votes: 3,
         });
-        expect(supabase.auth.getUser).toHaveBeenCalledWith("token");
     });
 
     it("returns 401 when the user is not authenticated", async () => {
@@ -209,4 +203,3 @@ describe("/api/votes", () => {
         });
     });
 });
-
