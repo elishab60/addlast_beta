@@ -10,6 +10,8 @@ import { Heart } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import { getVoteWindowStart } from "@/lib/voteWindow";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 type ProductCardProps = {
     product: {
@@ -29,6 +31,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
     const [userVoted, setUserVoted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showUnvoteConfirm, setShowUnvoteConfirm] = useState(false);
 
     useEffect(() => {
         fetchVotes();
@@ -41,7 +44,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString());
+            .gte("created_at", getVoteWindowStart());
         setVotesCount(count || 0);
     }
 
@@ -51,7 +54,7 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
             .select("*")
             .eq("user_id", user?.id)
             .eq("product_id", product.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString());
+            .gte("created_at", getVoteWindowStart());
         setUserVoted(!!(data && data.length));
     }
 
@@ -64,12 +67,17 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
             return;
         }
 
+        if (userVoted) {
+            setShowUnvoteConfirm(true);
+            return;
+        }
+
         setLoading(true);
         const { data: userVotes } = await supabase
             .from("votes")
             .select("*")
             .eq("user_id", user.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString());
+            .gte("created_at", getVoteWindowStart());
 
         if (userVotes?.find((v) => v.product_id === product.id)) {
             toast.info("Tu as déjà voté pour cette paire ce mois-ci !");
@@ -98,6 +106,37 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
         }
     }
 
+    async function handleUnvote() {
+        if (!user) return;
+
+        setLoading(true);
+        const { data, error } = await supabase
+            .from("votes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("product_id", product.id)
+            .gte("created_at", getVoteWindowStart())
+            .select("id");
+
+        setLoading(false);
+        setShowUnvoteConfirm(false);
+
+        if (error) {
+            toast.error("Impossible de retirer ton like, réessaie.");
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            toast.info("Aucun like récent à retirer.");
+            return;
+        }
+
+        toast.success("Ton like a bien été retiré.");
+        setUserVoted(false);
+        fetchVotes();
+        if (onVoted) onVoted();
+    }
+
     const percent = Math.min(100, (votesCount / product.goal_likes) * 100);
 
     return (
@@ -123,11 +162,12 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
                         <span className="font-bold text-xl">{product.price}€</span>
                         <Button
                             variant={userVoted ? "default" : "outline"}
-                            disabled={userVoted || loading}
+                            disabled={loading}
                             onClick={handleVote}
                             size="icon"
                             className="rounded-full w-14 h-14 text-red-600 border-2 border-red-500 bg-red-50 hover:bg-red-100 shadow-lg text-2xl flex items-center justify-center transition-all"
-                            aria-label={userVoted ? "Déjà voté" : "Voter"}
+                            aria-label={userVoted ? "Retirer mon like" : "Voter"}
+                            aria-pressed={userVoted}
                             tabIndex={0}
                         >
                             <Heart fill={userVoted ? "#ef4444" : "none"} className="w-8 h-8 transition-all" />
@@ -158,6 +198,15 @@ export default function ProductCard({ product, user, onVoted }: ProductCardProps
                         </Button>
                     </DialogContent>
                 </Dialog>
+                <ConfirmDialog
+                    open={showUnvoteConfirm}
+                    onOpenChange={setShowUnvoteConfirm}
+                    title="Retirer ton like ?"
+                    description="Tu pourras revenir liker cette paire plus tard si tu changes d'avis."
+                    confirmLabel="Retirer"
+                    onConfirm={handleUnvote}
+                    confirmLoading={loading}
+                />
             </Card>
         </Link>
     );
