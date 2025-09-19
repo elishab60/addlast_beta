@@ -103,9 +103,9 @@ export default function WishlistPage() {
             <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
                 {/* NON CONNECTÉ */}
                 {!user && (
-                    <div className="flex flex-col items-center w-full max-w-xl mx-auto py-16">
-                        <Heart className="w-12 h-12 text-black mb-3" fill="black" />
-                        <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 tracking-tight">
+                    <div className="flex flex-col items-center w-full max-w-xl mx-auto py-16 text-center">
+                        <Heart className="w-12 h-12 text-black mb-3 transition-colors" />
+                        <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 tracking-tight text-black">
                             UNE PAIRE VOUS FAIT DE L&apos;OEIL ? {/* ✅ apostrophe échappée */}
                         </h2>
                         <div className="text-gray-600 text-center text-lg md:text-xl mb-8 max-w-xl leading-snug">
@@ -114,12 +114,12 @@ export default function WishlistPage() {
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                             <Link href="/sign-up" className="w-full sm:w-auto">
-                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto bg-black text-white hover:bg-gray-900">
+                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto">
                                     CRÉER UN COMPTE
                                 </Button>
                             </Link>
                             <Link href="/sign-in" className="w-full sm:w-auto">
-                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto bg-black text-white hover:bg-gray-900">
+                                <Button className="rounded-full px-8 py-4 text-lg font-bold w-full sm:w-auto">
                                     SE CONNECTER
                                 </Button>
                             </Link>
@@ -129,7 +129,7 @@ export default function WishlistPage() {
 
                 {/* LOADING */}
                 {user && loading && (
-                    <div className="flex flex-col items-center justify-center min-h-[30vh] text-xl text-gray-500">
+                    <div className="flex flex-col items-center justify-center min-h-[30vh] text-xl text-black">
                         Chargement…
                     </div>
                 )}
@@ -137,13 +137,15 @@ export default function WishlistPage() {
                 {/* CONNECTÉ, WISHLIST VIDE */}
                 {user && !loading && liked.length === 0 && (
                     <div className="flex flex-col items-center w-full max-w-xl mx-auto py-16">
-                        <Heart className="w-12 h-12 text-gray-400 mb-3" />
-                        <h2 className="text-2xl md:text-3xl font-bold text-center mb-3">Ta wishlist est vide</h2>
+                        <Heart className="w-12 h-12 text-black mb-3" />
+                        <h2 className="text-2xl md:text-3xl font-bold text-center mb-3 text-black">Ta wishlist est vide</h2>
                         <div className="text-gray-600 text-center mb-7 text-lg">
                             Like tes paires préférées pour les retrouver ici.
                         </div>
                         <Link href="/products">
-                            <Button className="rounded-full px-8 py-4 text-lg font-bold">Voir les produits</Button>
+                            <Button className="rounded-full px-8 py-4 text-lg font-bold">
+                                Voir les produits
+                            </Button>
                         </Link>
                     </div>
                 )}
@@ -151,14 +153,14 @@ export default function WishlistPage() {
                 {/* CONNECTÉ, AVEC LIKES */}
                 {user && !loading && liked.length > 0 && (
                     <div className="w-full max-w-4xl mx-auto py-6">
-                        <h1 className="text-2xl md:text-3xl font-bold mb-8 flex items-center gap-2 justify-center">
-                            <Heart className="w-7 h-7 text-black" fill="black" />
+                        <h1 className="text-2xl md:text-3xl font-bold mb-8 flex items-center gap-2 justify-center text-black">
+                            <Heart className="w-7 h-7 text-black" />
                             Mes paires likées
                         </h1>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                             {liked.map((prod) => (
                                 <Link href={`/products/${prod.id}`} key={prod.id} className="block group">
-                                    <div className="bg-white rounded-2xl shadow hover:shadow-xl hover:scale-[1.015] transition flex flex-col items-center p-5">
+                                    <div className="bg-white rounded-2xl shadow hover:shadow-xl hover:scale-[1.015] transition flex flex-col items-center p-5 border border-black/10 hover:border-accent">
                                         <div className="w-full aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden mb-4 relative">
                                             <img
                                                 src={prod.images?.[0] || "/placeholder.svg"}
@@ -169,7 +171,7 @@ export default function WishlistPage() {
                                                 type="button"
                                                 size="icon"
                                                 variant="default"
-                                                className="absolute top-3 right-3 rounded-full border border-black bg-black text-white hover:bg-white hover:text-black"
+                                                className="absolute top-3 right-3 rounded-full"
                                                 onClick={(event) => {
                                                     event.preventDefault();
                                                     event.stopPropagation();
@@ -177,12 +179,14 @@ export default function WishlistPage() {
                                                 }}
                                                 aria-label="Retirer ce produit de mes likes"
                                             >
-                                                <Heart className="w-5 h-5" fill="currentColor" />
+                                                <Heart className="w-5 h-5 text-black" />
                                             </Button>
                                         </div>
-                                        <div className="font-bold text-lg mb-1 truncate w-full text-center">{prod.title}</div>
+                                        <div className="font-bold text-lg mb-1 truncate w-full text-center text-black transition-colors group-hover:text-accent">
+                                            {prod.title}
+                                        </div>
                                         <div className="text-gray-600 text-sm mb-2 w-full text-center">{prod.brand}</div>
-                                        <div className="font-semibold text-xl mb-2 w-full text-center">{prod.price} €</div>
+                                        <div className="font-semibold text-xl mb-2 w-full text-center text-black transition-colors group-hover:text-accent">{prod.price} €</div>
                                     </div>
                                 </Link>
                             ))}

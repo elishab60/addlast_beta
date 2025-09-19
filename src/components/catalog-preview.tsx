@@ -29,7 +29,7 @@ export default function CatalogPreview({ products }: CatalogPreviewProps) {
                     {products.slice(0, 3).map((product) => (
                         <Card
                             key={product.id}
-                            className="group border border-black/20 hover:border-black transition-all duration-300 hover:shadow-lg bg-white"
+                            className="group border border-black/10 hover:border-accent transition-all duration-300 hover:shadow-lg bg-white"
                         >
                             <CardContent className="p-0">
                                 {/* Image */}
@@ -44,7 +44,7 @@ export default function CatalogPreview({ products }: CatalogPreviewProps) {
                                 {/* Contenu */}
                                 <div className="p-6 space-y-3">
                                     {/* Nom du modèle */}
-                                    <h3 className="text-lg font-medium text-black tracking-wide">{product.name}</h3>
+                                    <h3 className="text-lg font-medium text-black tracking-wide transition-colors group-hover:text-accent">{product.name}</h3>
 
                                     {/* Badge d'état */}
                                     <div className="flex justify-start">
@@ -53,7 +53,7 @@ export default function CatalogPreview({ products }: CatalogPreviewProps) {
                       inline-block px-3 py-1 text-xs font-medium tracking-wider uppercase
                       ${
                             product.status === "En vote"
-                                ? "bg-black text-white"
+                                ? "bg-black text-white border border-black"
                                 : product.status === "En précommande"
                                     ? "bg-white text-black border border-black"
                                     : "bg-gray-100 text-gray-600 border border-gray-300"
@@ -72,7 +72,7 @@ export default function CatalogPreview({ products }: CatalogPreviewProps) {
                 {/* CTA centré */}
                 <div className="text-center">
                     <Link href="/products">
-                        <Button className="bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all duration-300 px-8 py-3 text-base font-medium tracking-wide">
+                        <Button className="px-8 py-3 text-base font-medium tracking-wide">
                             Voir tout le catalogue
                         </Button>
                     </Link>

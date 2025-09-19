@@ -14,21 +14,23 @@ export default function CartPage() {
         <div className="flex flex-col min-h-screen bg-white">
             <Header />
             <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-12">
-                <h1 className="text-2xl font-bold mb-8">Mon panier</h1>
+                <h1 className="text-2xl font-bold mb-8 text-accent">Mon panier</h1>
                 {count === 0 ? (
                     <div className="text-gray-600 text-center mt-16">
                         Ton panier est vide.
                         <div className="mt-6">
                             <Link href="/products">
-                                <Button className="rounded-full px-8 py-3 font-bold">Voir le catalogue</Button>
+                                <Button className="rounded-full px-8 py-3 font-bold border border-accent bg-black text-white transition-colors hover:bg-accent hover:text-black">
+                                    Voir le catalogue
+                                </Button>
                             </Link>
                         </div>
                     </div>
                 ) : (
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-semibold">Mon panier ({count})</h2>
-                            <Button variant="ghost" onClick={clearCart} className="text-sm">
+                            <h2 className="text-xl font-semibold text-accent">Mon panier ({count})</h2>
+                            <Button variant="ghost" onClick={clearCart} className="text-sm text-accent hover:text-accent-muted">
                                 Vider le panier
                             </Button>
                         </div>
@@ -48,39 +50,42 @@ export default function CartPage() {
                                     <div className="font-semibold mt-2">{item.price} € x {item.quantity}</div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => updateQuantity(item.productId, item.size, item.quantity - 1)}
-                                        aria-label="Diminuer la quantité"
-                                    >
-                                        <Minus className="h-4 w-4" />
-                                    </Button>
-                                    <span className="w-8 text-center font-semibold">{item.quantity}</span>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
-                                        aria-label="Augmenter la quantité"
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
-                                </div>
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="icon"
-                                    onClick={() => removeFromCart(item.productId, item.size)}
-                                    aria-label="Retirer l'article"
+                                    onClick={() => updateQuantity(item.productId, item.size, item.quantity - 1)}
+                                    aria-label="Diminuer la quantité"
+                                    className="border border-accent text-accent hover:bg-accent hover:text-black"
                                 >
-                                    <Trash2 className="h-5 w-5" />
+                                    <Minus className="h-4 w-4" />
+                                </Button>
+                                    <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
+                                    aria-label="Augmenter la quantité"
+                                    className="border border-accent text-accent hover:bg-accent hover:text-black"
+                                >
+                                    <Plus className="h-4 w-4" />
                                 </Button>
                             </div>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeFromCart(item.productId, item.size)}
+                                aria-label="Retirer l'article"
+                                className="text-accent hover:text-accent-muted"
+                            >
+                                <Trash2 className="h-5 w-5" />
+                            </Button>
+                        </div>
                         ))}
                         <div className="flex justify-between items-center border-t pt-6 mt-6">
                             <div className="text-xl font-bold">Total</div>
                             <div className="text-xl font-bold">{total} €</div>
                         </div>
-                        <Button className="w-full rounded-full py-4 text-lg font-bold">
+                        <Button className="w-full rounded-full py-4 text-lg font-bold border border-accent bg-black text-white transition-colors hover:bg-accent hover:text-black">
                             Passer la précommande
                         </Button>
                     </div>

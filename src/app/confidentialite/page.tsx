@@ -16,7 +16,7 @@ export default function PolitiqueConfidentialitePage() {
 
                 <div className="space-y-12 text-gray-800 leading-relaxed">
                     <section>
-                        <h2 className="text-xl font-semibold border-l-4 border-black pl-4 mb-4">Introduction</h2>
+                        <h2 className="text-xl font-semibold border-l-4 border-black text-black pl-4 mb-4">Introduction</h2>
                         <p>
                             Nous nous engageons à protéger votre vie privée. En utilisant ce site, vous acceptez le traitement de vos
                             données conformément à cette politique.
@@ -24,7 +24,7 @@ export default function PolitiqueConfidentialitePage() {
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold border-l-4 border-black pl-4 mb-4">Principes de Protection</h2>
+                        <h2 className="text-xl font-semibold border-l-4 border-black text-black pl-4 mb-4">Principes de Protection</h2>
                         <ul className="list-disc list-inside space-y-2">
                             <li>Traitement légal, juste et transparent</li>
                             <li>Collecte limitée à l’objectif</li>
@@ -34,7 +34,7 @@ export default function PolitiqueConfidentialitePage() {
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold border-l-4 border-black pl-4 mb-4">Droits des Utilisateurs</h2>
+                        <h2 className="text-xl font-semibold border-l-4 border-black text-black pl-4 mb-4">Droits des Utilisateurs</h2>
                         <ul className="list-disc list-inside space-y-2">
                             <li>Droit d’accès, rectification et suppression</li>
                             <li>Droit d’opposition et de limitation</li>
@@ -44,7 +44,7 @@ export default function PolitiqueConfidentialitePage() {
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold border-l-4 border-black pl-4 mb-4">Cookies</h2>
+                        <h2 className="text-xl font-semibold border-l-4 border-black text-black pl-4 mb-4">Cookies</h2>
                         <p>
                             Nous utilisons des cookies pour analyser l’usage du site et améliorer l’expérience utilisateur.
                             Vous pouvez gérer vos préférences dans votre navigateur.
@@ -52,10 +52,10 @@ export default function PolitiqueConfidentialitePage() {
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-semibold border-l-4 border-black pl-4 mb-4">Contact</h2>
+                        <h2 className="text-xl font-semibold border-l-4 border-black text-black pl-4 mb-4">Contact</h2>
                         <p>
                             Pour toute question concernant vos données, contactez-nous à :{" "}
-                            <a href="mailto:atrewind404@gmail.com" className="text-black underline">
+                            <a href="mailto:atrewind404@gmail.com" className="text-black underline transition-colors hover:text-accent">
                                 atrewind404@gmail.com
                             </a>
                         </p>

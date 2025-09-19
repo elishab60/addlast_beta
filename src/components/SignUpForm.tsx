@@ -75,7 +75,7 @@ export default function SignUpForm() {
     return (
         <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95">
             <CardHeader className="pt-10 pb-2 flex flex-col items-center gap-2">
-                <span className="text-3xl font-black tracking-tight uppercase text-black select-none">
+                <span className="text-3xl font-black tracking-tight uppercase text-accent select-none">
                     addlast
                 </span>
                 <CardTitle className="text-center text-2xl font-extrabold tracking-tight">
@@ -136,7 +136,7 @@ export default function SignUpForm() {
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-accent-muted"
                         >
                             {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
                         </button>
@@ -156,7 +156,7 @@ export default function SignUpForm() {
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-accent-muted"
                         >
                             {showConfirmPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
                         </button>
@@ -168,7 +168,7 @@ export default function SignUpForm() {
                             type="checkbox"
                             checked={newsletter}
                             onChange={(e) => setNewsletter(e.target.checked)}
-                            className="w-4 h-4 rounded transition focus:ring-2 focus:ring-black"
+                            className="w-4 h-4 rounded transition focus:ring-2 focus:ring-accent"
                         />
                         <label htmlFor="newsletter" className="text-sm">
                             Je souhaite recevoir la newsletter.
@@ -180,7 +180,7 @@ export default function SignUpForm() {
                             type="checkbox"
                             checked={acceptCgu}
                             onChange={(e) => setAcceptCgu(e.target.checked)}
-                            className="w-4 h-4 rounded transition focus:ring-2 focus:ring-black"
+                            className="w-4 h-4 rounded transition focus:ring-2 focus:ring-accent"
                             required
                         />
                         <label htmlFor="cgu" className="text-sm">
@@ -193,7 +193,7 @@ export default function SignUpForm() {
                     </div>
                     <Button
                         type="submit"
-                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl"
+                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl bg-black text-white border border-accent hover:bg-accent hover:text-black"
                         disabled={loading}
                     >
                         {loading ? "Création du compte..." : "S'inscrire"}
@@ -203,7 +203,7 @@ export default function SignUpForm() {
                     Déjà un compte ?{" "}
                     <Link
                         href="/sign-in"
-                        className="text-black underline font-semibold hover:no-underline hover:text-neutral-700 transition"
+                        className="text-accent underline font-semibold hover:no-underline hover:text-accent-muted transition"
                     >
                         Se connecter
                     </Link>

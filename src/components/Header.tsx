@@ -146,17 +146,17 @@ export default function Header() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="end"
-                                    className="w-56 shadow-xl rounded-2xl mt-2 border border-[#7CFF6B]/30 bg-black text-white"
+                                    className="w-56 shadow-xl rounded-2xl mt-2 border border-black/10 bg-white text-black"
                                 >
                                     <DropdownMenuItem
                                         asChild
-                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                        className="transition-colors focus:bg-[#7CFF6B]/15 hover:text-[#7CFF6B] focus:text-[#7CFF6B]"
                                     >
                                         <Link href="/account">Mon profil</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         asChild
-                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                        className="transition-colors focus:bg-[#7CFF6B]/15 hover:text-[#7CFF6B] focus:text-[#7CFF6B]"
                                     >
                                         <Link href="/orders">Mes commandes</Link>
                                     </DropdownMenuItem>
@@ -165,7 +165,7 @@ export default function Header() {
                                         <>
                                             <DropdownMenuItem
                                                 asChild
-                                                className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                                className="transition-colors focus:bg-[#7CFF6B]/15 hover:text-[#7CFF6B] focus:text-[#7CFF6B]"
                                             >
                                                 <Link href="/admin">Admin</Link>
                                             </DropdownMenuItem>
@@ -174,7 +174,7 @@ export default function Header() {
                                     )}
                                     <DropdownMenuItem
                                         onClick={handleLogout}
-                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                        className="transition-colors focus:bg-[#7CFF6B]/15 hover:text-[#7CFF6B] focus:text-[#7CFF6B]"
                                     >
                                         Déconnexion
                                     </DropdownMenuItem>

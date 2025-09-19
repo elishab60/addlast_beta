@@ -59,8 +59,8 @@ export default function PrecommandesPage() {
             {/* Hero */}
             <section className="py-20 px-4 text-center border-b border-border bg-white">
                 <div className="max-w-4xl mx-auto">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                        Campagnes de <span className="italic">précommande</span>
+                    <h1 className="text-4xl md:text-6xl font-bold mb-6 text-accent">
+                        Campagnes de <span className="italic text-accent-muted">précommande</span>
                     </h1>
                     <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
                         Soutenez la réédition de modèles rares. Payez un acompte sécurisé pour garantir votre paire.
@@ -88,14 +88,14 @@ export default function PrecommandesPage() {
                                 Actuellement, aucune paire n’a encore atteint le quota nécessaire pour passer en précommande.
                             </p>
                             <Link href="/votes">
-                                <Button className="bg-black text-white hover:bg-white hover:text-black border border-black">
+                                <Button className="bg-black text-white border border-accent transition-colors hover:bg-accent hover:text-black">
                                     Aller voter pour changer ça
                                 </Button>
                             </Link>
                         </div>
                     ) : (
                         <>
-                            <h2 className="text-3xl font-bold mb-12">Sneakers en cours de précommande</h2>
+                            <h2 className="text-3xl font-bold mb-12 text-accent">Sneakers en cours de précommande</h2>
                             <div
                                 className={`
                   grid gap-6
@@ -122,7 +122,7 @@ export default function PrecommandesPage() {
 function PrecommandeCard({ product }: { product: Product }) {
     return (
         <Link href={`/products/${product.id}`} className="block group">
-            <Card className="border border-black/20 hover:border-black transition-all duration-300 bg-white h-full">
+            <Card className="border border-border hover:border-accent transition-all duration-300 bg-white h-full">
                 <CardHeader className="pb-2">
                     <div className="relative aspect-square overflow-hidden rounded-xl bg-neutral-100">
                         <img
@@ -131,14 +131,14 @@ function PrecommandeCard({ product }: { product: Product }) {
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                     </div>
-                    <CardTitle className="mt-3 text-lg font-semibold truncate">
+                    <CardTitle className="mt-3 text-lg font-semibold truncate text-accent group-hover:text-accent-muted transition-colors">
                         {product.title || product.name}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
                     <div className="flex items-center justify-between">
                         <span className="font-bold text-xl">{product.price}€</span>
-                        <Button size="sm" className="bg-black text-white hover:bg-white hover:text-black border border-black">
+                        <Button size="sm" className="bg-black text-white border border-accent transition-colors hover:bg-accent hover:text-black">
                             <ShoppingCart className="w-4 h-4 mr-2" /> Précommander
                         </Button>
                     </div>
