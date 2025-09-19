@@ -1,5 +1,20 @@
 import { NextResponse } from "next/server";
-import { supabaseRoute } from "@/lib/supabaseRoute";
+
+import { supabaseRoute, type SupabaseRouteResult } from "@/lib/supabaseRoute";
+
+type SessionUser = NonNullable<SupabaseRouteResult["session"]>["user"];
+
+function assertUserSession(session: SupabaseRouteResult["session"]): SessionUser | null {
+    if (!session || !session.user || !session.access_token) {
+        return null;
+    }
+
+    if (session.expires_at && session.expires_at <= Math.floor(Date.now() / 1000)) {
+        return null;
+    }
+
+    return session.user;
+}
 
 export async function POST(request: Request) {
     let productId: string | undefined;
@@ -15,13 +30,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "productId manquant" }, { status: 400 });
     }
 
-    const supabase = supabaseRoute();
-    const {
-        data: { user },
-        error: userError,
-    } = await supabase.auth.getUser();
+    const { supabase, session } = await supabaseRoute();
+    const user = assertUserSession(session);
 
-    if (userError || !user) {
+    if (!user) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
     }
 
@@ -62,7 +74,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ message: "productId manquant" }, { status: 400 });
     }
 
-    const supabase = supabaseRoute();
+    const { supabase, session } = await supabaseRoute();
 
     const { count, error: countError } = await supabase
         .from("votes")
@@ -74,13 +86,9 @@ export async function GET(request: Request) {
     }
 
     let userVoted = false;
+    const user = assertUserSession(session);
 
-    const {
-        data: { user },
-        error: userError,
-    } = await supabase.auth.getUser();
-
-    if (!userError && user) {
+    if (user) {
         const { data: userVotes, error: userVoteError } = await supabase
             .from("votes")
             .select("id")
@@ -115,13 +123,10 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ message: "productId manquant" }, { status: 400 });
     }
 
-    const supabase = supabaseRoute();
-    const {
-        data: { user },
-        error: userError,
-    } = await supabase.auth.getUser();
+    const { supabase, session } = await supabaseRoute();
+    const user = assertUserSession(session);
 
-    if (userError || !user) {
+    if (!user) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
     }
 
