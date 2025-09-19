@@ -69,7 +69,24 @@ function extractSupabaseSession(cookieStore: CookieStore): Partial<Session> | nu
 export async function supabaseRoute(): Promise<SupabaseRouteResult> {
     const { url, anonKey } = getSupabaseEnv();
     const cookieStore = await cookies();
+    const allCookies = cookieStore.getAll();
+    const authCookieNames = allCookies
+        .filter((cookie) => cookie.name.includes("-auth-token"))
+        .map((cookie) => cookie.name);
+
+    console.debug("[supabaseRoute] cookies available", {
+        total: allCookies.length,
+        authCookieNames,
+    });
+
     const session = extractSupabaseSession(cookieStore);
+
+    console.debug("[supabaseRoute] session extracted", {
+        hasSession: !!session,
+        hasAccessToken: !!session?.access_token,
+        expiresAt: session?.expires_at ?? null,
+        hasUser: !!session?.user,
+    });
 
     const supabase = createClient(url, anonKey, {
         auth: {
