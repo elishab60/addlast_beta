@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import type { User } from "@supabase/supabase-js"
@@ -118,21 +118,16 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
     const [userVoted, setUserVoted] = useState(false)
     const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
-        fetchVotes()
-        if (user) checkUserVote()
-    }, [user, product.id])
-
-    async function fetchVotes() {
+    const fetchVotes = useCallback(async () => {
         const { count } = await supabase
             .from("votes")
             .select("*", { count: "exact", head: true })
             .eq("product_id", product.id)
             .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
         setVotesCount(count || 0)
-    }
+    }, [product.id])
 
-    async function checkUserVote() {
+    const checkUserVote = useCallback(async () => {
         const { data } = await supabase
             .from("votes")
             .select("product_id")
@@ -140,7 +135,12 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
             .eq("product_id", product.id)
             .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
         setUserVoted(!!(data && data.length))
-    }
+    }, [product.id, user?.id])
+
+    useEffect(() => {
+        fetchVotes()
+        if (user) checkUserVote()
+    }, [fetchVotes, checkUserVote, user])
 
     async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
@@ -150,32 +150,31 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
         }
 
         setLoading(true)
-        const { data: userVotes } = await supabase
-            .from("votes")
-            .select("product_id")
-            .eq("user_id", user.id)
-            .gte("created_at", new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString())
+        try {
+            const response = await fetch("/api/votes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: product.id }),
+            })
 
-        if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
-            toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
+            const payload = await response.json()
             setLoading(false)
-            return
-        }
 
-        if ((userVotes?.length || 0) >= 2) {
-            toast.error("Tu as atteint la limite de 2 votes ce mois-ci.")
-            setLoading(false)
-            return
-        }
+            if (!response.ok) {
+                const errorMessage = payload?.message || "Erreur lors du vote, réessaie."
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour voter !")
+                } else {
+                    toast.error(errorMessage)
+                }
+                return
+            }
 
-        const { error } = await supabase.from("votes").insert({ user_id: user.id, product_id: product.id })
-        setLoading(false)
-
-        if (!error) {
-            toast.success("Ton vote a bien été pris en compte !")
+            toast.success(payload?.message ?? "Ton vote a bien été pris en compte !")
             setUserVoted(true)
-            fetchVotes()
-        } else {
+            setVotesCount(payload?.votes ?? votesCount + 1)
+        } catch {
+            setLoading(false)
             toast.error("Erreur lors du vote, réessaie.")
         }
     }
