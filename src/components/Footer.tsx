@@ -10,7 +10,6 @@ export default function Footer() {
                 <div className="flex flex-col items-center space-y-8">
                     {/* Brand */}
                     <div className="text-center">
-                        <p className="text-sm uppercase tracking-[0.35em] text-white/40">since 2024</p>
                         <div className="mt-2 text-3xl font-bold text-white transition-colors duration-300">
                             add<span className="text-[#7CFF6B]">last</span>
                         </div>
