@@ -22,6 +22,7 @@ import {
 import { ConfirmDialog } from "@/components/ConfirmDialog"
 import { getVoteWindowStart } from "@/lib/voteWindow"
 import type { User } from "@supabase/supabase-js"
+import { createVote, removeVote } from "@/lib/votesClient"
 
 type Product = {
     id: string
@@ -119,35 +120,29 @@ export default function ProductPage() {
             return
         }
 
+        if (!product) return
+
         setVoteLoading(true)
-        try {
-            const response = await fetch("/api/votes", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ productId: product?.id }),
-                credentials: "include",
-            })
+        const result = await createVote(product.id)
+        setVoteLoading(false)
 
-            const payload = await response.json()
-
-            if (!response.ok) {
-                const errorMessage = payload?.message || "Erreur lors du vote"
-                if (response.status === 401) {
-                    toast.info("Connecte-toi pour voter !")
-                } else {
-                    toast.error(errorMessage)
-                }
-                setVoteLoading(false)
-                return
+        if (!result.ok) {
+            if (result.status === 401) {
+                toast.info("Connecte-toi pour voter !")
+            } else if (result.status === 409) {
+                toast.info(result.message ?? "Tu as déjà voté pour cette paire ce mois-ci !")
+            } else {
+                toast.error(result.message ?? "Erreur lors du vote")
             }
+            return
+        }
 
-            toast.success(payload?.message ?? "Vote enregistré ✅")
-            setUserVoted(true)
-            setVotesCount(payload?.votes ?? votesCount + 1)
-            setVoteLoading(false)
-        } catch {
-            setVoteLoading(false)
-            toast.error("Erreur lors du vote")
+        toast.success(result.message ?? "Vote enregistré ✅")
+        setUserVoted(true)
+        if (typeof result.votes === "number") {
+            setVotesCount(result.votes)
+        } else {
+            fetchVotes()
         }
     }
 
@@ -158,39 +153,27 @@ export default function ProductPage() {
         if (!user || !product) return
 
         setVoteLoading(true)
-        try {
-            const response = await fetch("/api/votes", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ productId: product.id }),
-                credentials: "include",
-            })
+        const result = await removeVote(product.id)
+        setVoteLoading(false)
+        setShowUnvoteConfirm(false)
 
-            const payload = await response.json()
-
-            if (!response.ok) {
-                const message = payload?.message || "Impossible de retirer ton like."
-                if (response.status === 404) {
-                    toast.info(message)
-                } else if (response.status === 401) {
-                    toast.info("Connecte-toi pour gérer tes likes.")
-                } else {
-                    toast.error(message)
-                }
-                setVoteLoading(false)
-                setShowUnvoteConfirm(false)
-                return
+        if (!result.ok) {
+            if (result.status === 404) {
+                toast.info(result.message ?? "Aucun like récent à retirer")
+            } else if (result.status === 401) {
+                toast.info("Connecte-toi pour gérer tes likes.")
+            } else {
+                toast.error(result.message ?? "Impossible de retirer ton like, réessaie.")
             }
+            return
+        }
 
-            toast.success(payload?.message ?? "Ton like a bien été retiré.")
-            setUserVoted(false)
-            setVotesCount(payload?.votes ?? Math.max(0, votesCount - 1))
-            setVoteLoading(false)
-            setShowUnvoteConfirm(false)
-        } catch {
-            setVoteLoading(false)
-            setShowUnvoteConfirm(false)
-            toast.error("Impossible de retirer ton like, réessaie.")
+        toast.success(result.message ?? "Ton like a bien été retiré.")
+        setUserVoted(false)
+        if (typeof result.votes === "number") {
+            setVotesCount(result.votes)
+        } else {
+            fetchVotes()
         }
     }
 

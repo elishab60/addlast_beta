@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase"
 import type { User } from "@supabase/supabase-js"
 import { getVoteWindowStart } from "@/lib/voteWindow"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
+import { createVote, removeVote } from "@/lib/votesClient"
 
 type Product = {
     id: string
@@ -110,9 +111,9 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         setUserVoted(!!(data && data.length))
     }
 
-    async function handleVote(e: MouseEvent<HTMLButtonElement>) {
-        e.preventDefault()
-        e.stopPropagation()
+    async function handleVote(event: MouseEvent<HTMLButtonElement>) {
+        event.preventDefault()
+        event.stopPropagation()
 
         if (!user) {
             toast.info("Connecte-toi pour voter !")
@@ -125,38 +126,31 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         }
 
         setLoading(true)
-
-        const { data: userVotes } = await supabase
-            .from("votes")
-            .select("product_id")
-            .eq("user_id", user.id)
-            .gte("created_at", getVoteWindowStart())
-
-        if (userVotes?.some((v: { product_id: string }) => v.product_id === product.id)) {
-            toast.info("Tu as déjà voté pour cette paire ce mois-ci !")
-            setLoading(false)
-            return
-        }
-
-        if ((userVotes?.length || 0) >= 2) {
-            setShowModal(true)
-            setLoading(false)
-            return
-        }
-
-        const { error } = await supabase.from("votes").insert({
-            user_id: user.id,
-            product_id: product.id,
-        })
-
+        const result = await createVote(product.id)
         setLoading(false)
 
-        if (!error) {
-            toast.success("Ton vote a bien été pris en compte !")
-            setUserVoted(true)
-            fetchVotes()
+        if (!result.ok) {
+            if (result.status === 401) {
+                toast.info("Connecte-toi pour voter !")
+            } else if (result.status === 409) {
+                if (result.message?.toLowerCase().includes("limite")) {
+                    setShowModal(true)
+                    toast.info(result.message ?? "Tu as atteint la limite de votes ce mois-ci.")
+                } else {
+                    toast.info(result.message ?? "Tu as déjà voté pour cette paire ce mois-ci !")
+                }
+            } else {
+                toast.error(result.message ?? "Erreur lors du vote, réessaie.")
+            }
+            return
+        }
+
+        toast.success(result.message ?? "Ton vote a bien été pris en compte !")
+        setUserVoted(true)
+        if (typeof result.votes === "number") {
+            setVotesCount(result.votes)
         } else {
-            toast.error("Erreur lors du vote, réessaie.")
+            fetchVotes()
         }
     }
 
@@ -167,30 +161,28 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         if (!user) return
 
         setLoading(true)
-        const { data, error } = await supabase
-            .from("votes")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("product_id", product.id)
-            .gte("created_at", getVoteWindowStart())
-            .select("id")
-
+        const result = await removeVote(product.id)
         setLoading(false)
         setShowUnvoteConfirm(false)
 
-        if (error) {
-            toast.error("Impossible de retirer ton like, réessaie.")
+        if (!result.ok) {
+            if (result.status === 401) {
+                toast.info("Connecte-toi pour gérer tes likes.")
+            } else if (result.status === 404) {
+                toast.info(result.message ?? "Aucun like récent à retirer.")
+            } else {
+                toast.error(result.message ?? "Impossible de retirer ton like, réessaie.")
+            }
             return
         }
 
-        if (!data || data.length === 0) {
-            toast.info("Aucun like récent à retirer.")
-            return
-        }
-
-        toast.success("Ton like a bien été retiré.")
+        toast.success(result.message ?? "Ton like a bien été retiré.")
         setUserVoted(false)
-        fetchVotes()
+        if (typeof result.votes === "number") {
+            setVotesCount(result.votes)
+        } else {
+            fetchVotes()
+        }
     }
 
     const percent = Math.min(
