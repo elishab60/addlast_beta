@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { supabaseRoute, type SupabaseRouteResult } from "@/lib/supabaseRoute";
 
 type SessionUser = NonNullable<NonNullable<SupabaseRouteResult["session"]>["user"]>;
