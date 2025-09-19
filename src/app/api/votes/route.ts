@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "productId manquant" }, { status: 400 });
     }
 
-    const supabase = supabaseRoute();
+    const supabase = await supabaseRoute();
     const {
         data: { user },
         error: userError,
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ message: "productId manquant" }, { status: 400 });
     }
 
-    const supabase = supabaseRoute();
+    const supabase = await supabaseRoute();
 
     const { count, error: countError } = await supabase
         .from("votes")
@@ -115,7 +115,7 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ message: "productId manquant" }, { status: 400 });
     }
 
-    const supabase = supabaseRoute();
+    const supabase = await supabaseRoute();
     const {
         data: { user },
         error: userError,
