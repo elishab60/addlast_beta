@@ -147,6 +147,8 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
 
     async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
+        e.stopPropagation()
+
         if (!user) {
             toast.info("Connecte-toi pour voter !")
             return
@@ -187,7 +189,12 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
         }
     }
 
-    async function handleUnvote() {
+    async function handleUnvote(e?: React.MouseEvent) {
+        if (e) {
+            e.preventDefault()
+            e.stopPropagation()
+        }
+
         if (!user) return
 
         setLoading(true)
@@ -239,7 +246,6 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                     </div>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                    {/* Ligne nom du produit + bouton like */}
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-lg font-semibold truncate">{product.title}</CardTitle>
                         <Button
@@ -254,7 +260,6 @@ function VoteCard({ product, user, small }: { product: Product; user: User | nul
                         </Button>
                     </div>
 
-                    {/* Progress bar uniquement */}
                     <div>
                         <div className="flex justify-between text-xs text-neutral-500 mb-1">
                             <span>{votesCount} votes</span>

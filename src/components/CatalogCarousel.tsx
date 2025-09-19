@@ -42,20 +42,20 @@ export default function CatalogGrid({
             <div className="max-w-7xl mx-auto px-4">
                 {/* Titre centré avec underline hover */}
                 <div className="text-center mb-10 md:mb-12">
-          <span className="relative inline-block group">
-            <h2 className="text-3xl md:text-4xl font-light tracking-wide text-black transition-colors duration-300 group-hover:text-gray-700">
-              {title}
-            </h2>
-            <span className="pointer-events-none absolute left-0 -bottom-2 h-0.5 bg-black w-0 transition-all duration-300 group-hover:w-full"></span>
-          </span>
+                    <span className="relative inline-block group">
+                        <h2 className="text-3xl md:text-4xl font-light tracking-wide text-black transition-colors duration-300 group-hover:text-gray-700">
+                            {title}
+                        </h2>
+                        <span className="pointer-events-none absolute left-0 -bottom-2 h-0.5 bg-black w-0 transition-all duration-300 group-hover:w-full"></span>
+                    </span>
                 </div>
 
                 {/* Grille adaptative centrée */}
                 <div
                     className="
-            grid gap-6 justify-center
-            [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]
-          "
+                        grid gap-6 justify-center
+                        [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]
+                    "
                 >
                     {products.map((p) => (
                         <GridCard key={p.id} product={p} user={user} />
@@ -111,6 +111,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
     }
 
     async function handleVote(e: React.MouseEvent<HTMLButtonElement>) {
+        // Empêche la redirection de la card
         e.preventDefault()
         e.stopPropagation()
 
@@ -160,7 +161,12 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
         }
     }
 
-    async function handleUnvote() {
+    async function handleUnvote(e?: React.MouseEvent) {
+        if (e) {
+            e.preventDefault()
+            e.stopPropagation()
+        }
+
         if (!user) return
 
         setLoading(true)
@@ -236,7 +242,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 <div className="flex items-center justify-between">
                     <span className="font-bold text-xl text-black">{product.price}€</span>
 
-                    {/* Bouton like — shadcn monochrome */}
+                    {/* Bouton like */}
                     <Button
                         variant={userVoted ? "default" : "outline"}
                         disabled={loading}
@@ -257,15 +263,15 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 {/* Progress likes */}
                 <div>
                     <div className="flex justify-between text-xs text-neutral-500 mb-1">
-            <span>
-              {votesCount} / {product.goal_likes} likes
-            </span>
+                        <span>
+                            {votesCount} / {product.goal_likes} likes
+                        </span>
                         <span>{Math.round(percent)}%</span>
                     </div>
                     <Progress value={percent} className="h-2 rounded-full" />
                 </div>
 
-                {/* Bandeau d'état sous la progressbar */}
+                {/* Bandeau d'état */}
                 <StatusBand
                     status={product.status}
                     votesCount={votesCount}
@@ -292,6 +298,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 </DialogContent>
             </Dialog>
 
+            {/* Confirmation retrait vote */}
             <ConfirmDialog
                 open={showUnvoteConfirm}
                 onOpenChange={setShowUnvoteConfirm}
@@ -305,7 +312,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
     )
 }
 
-/* -------------------- Bandeau d'état (sous la progressbar) -------------------- */
+/* -------------------- Bandeau d'état -------------------- */
 
 function StatusBand({
                         status,
@@ -319,7 +326,6 @@ function StatusBand({
     const base =
         "w-full text-center text-xs font-medium tracking-wider uppercase rounded-md py-2 border"
 
-    // Détermine si quota atteint
     const quotaAtteint = votesCount >= (goal_likes || 1)
 
     if (quotaAtteint) {
