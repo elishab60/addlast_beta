@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 
 import { supabaseRoute, type SupabaseRouteResult } from "@/lib/supabaseRoute";
 
-type SessionUser = NonNullable<SupabaseRouteResult["session"]>["user"];
+type SessionUser = NonNullable<NonNullable<SupabaseRouteResult["session"]>["user"]>;
 
-function assertUserSession(session: SupabaseRouteResult["session"]): SessionUser | null {
-    if (!session || !session.user || !session.access_token) {
+async function getAuthenticatedUser(
+    supabase: SupabaseRouteResult["supabase"],
+    session: SupabaseRouteResult["session"]
+): Promise<SessionUser | null> {
+    if (!session || !session.access_token) {
         return null;
     }
 
@@ -13,7 +16,17 @@ function assertUserSession(session: SupabaseRouteResult["session"]): SessionUser
         return null;
     }
 
-    return session.user;
+    if (session.user) {
+        return session.user as SessionUser;
+    }
+
+    const { data, error } = await supabase.auth.getUser(session.access_token);
+
+    if (error || !data?.user) {
+        return null;
+    }
+
+    return data.user as SessionUser;
 }
 
 export async function POST(request: Request) {
@@ -31,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     const { supabase, session } = await supabaseRoute();
-    const user = assertUserSession(session);
+    const user = await getAuthenticatedUser(supabase, session);
 
     if (!user) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
@@ -88,7 +101,7 @@ export async function GET(request: Request) {
     }
 
     let userVoted = false;
-    const user = assertUserSession(session);
+    const user = await getAuthenticatedUser(supabase, session);
 
     if (user) {
         const { data: userVotes, error: userVoteError } = await supabase
@@ -126,7 +139,7 @@ export async function DELETE(request: Request) {
     }
 
     const { supabase, session } = await supabaseRoute();
-    const user = assertUserSession(session);
+    const user = await getAuthenticatedUser(supabase, session);
 
     if (!user) {
         return NextResponse.json({ message: "Authentification requise" }, { status: 401 });
