@@ -329,10 +329,10 @@ function StatusBand({
     const quotaAtteint = votesCount >= (goal_likes || 1)
 
     if (quotaAtteint) {
-        return <div className={`${base} bg-white text-accent border-accent`}>En précommande</div>
+        return <div className={`${base} bg-white text-black border-black`}>En précommande</div>
     }
     if (status === "En vote") {
-        return <div className={`${base} bg-accent text-black border-accent`}>En vote</div>
+        return <div className={`${base} bg-white text-black border-black`}>En vote</div>
     }
     return (
         <div className={`${base} bg-neutral-100 text-neutral-600 border-neutral-300`}>
