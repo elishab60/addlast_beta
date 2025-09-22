@@ -218,7 +218,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
             tabIndex={0}
             onClick={handleCardActivate}
             onKeyDown={handleCardKeyDown}
-            className="group cursor-pointer border border-border hover:border-accent transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent"
+            className="group cursor-pointer border border-border hover:border-black transition-all duration-300 bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent"
         >
             <CardHeader className="pb-2">
                 {/* Image carrée */}
@@ -232,7 +232,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                     />
                 </div>
 
-                <CardTitle className="mt-3 text-lg font-semibold truncate text-accent group-hover:text-accent-muted transition-colors">
+                <CardTitle className="mt-3 text-lg font-semibold truncate text-black group-hover:text-black-muted transition-colors">
                     {product.name}
                 </CardTitle>
                 <div className="text-sm text-neutral-500">{product.brand}</div>
@@ -240,9 +240,8 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
 
             <CardContent className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <span className="font-bold text-xl text-accent">{product.price}€</span>
+                    <span className="font-bold text-xl text-black">{product.price}€</span>
 
-                    {/* Bouton like */}
                     <Button
                         variant={userVoted ? "default" : "outline"}
                         disabled={loading}
@@ -250,14 +249,15 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                         size="icon"
                         className={
                             userVoted
-                                ? "rounded-full w-12 h-12 bg-accent text-black border-2 border-accent hover:bg-accent"
-                                : "rounded-full w-12 h-12 border-2 border-accent text-accent hover:bg-accent hover:text-black"
+                                ? "rounded-full w-12 h-12 bg-black text-white border-2 border-black hover:bg-white hover:text-black"
+                                : "rounded-full w-12 h-12 border-2 border-black text-black hover:bg-black hover:text-white"
                         }
                         aria-label={userVoted ? "Retirer mon like" : "Voter"}
                         aria-pressed={userVoted}
                     >
-                        <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#7CFF6B" : "none"} color="#7CFF6B" />
+                        <Heart className="w-6 h-6 transition-all" fill={userVoted ? "#000000" : "none"} />
                     </Button>
+
                 </div>
 
                 {/* Progress likes */}

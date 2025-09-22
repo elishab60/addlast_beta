@@ -136,7 +136,7 @@ export default function SignUpForm() {
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-accent-muted"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-black-muted"
                         >
                             {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
                         </button>
@@ -156,7 +156,7 @@ export default function SignUpForm() {
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-accent-muted"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:text-black-muted"
                         >
                             {showConfirmPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
                         </button>
@@ -193,7 +193,7 @@ export default function SignUpForm() {
                     </div>
                     <Button
                         type="submit"
-                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl bg-black text-white border border-accent hover:bg-accent hover:text-black"
+                        className="w-full mt-2 rounded-full font-semibold transition hover:-translate-y-1 hover:shadow-xl bg-black text-white border border-black hover:bg-accent hover:text-black"
                         disabled={loading}
                     >
                         {loading ? "Création du compte..." : "S'inscrire"}
