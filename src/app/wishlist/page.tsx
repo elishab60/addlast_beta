@@ -67,34 +67,48 @@ export default function WishlistPage() {
         }
     };
 
+    const parseResponse = async (response: Response) => {
+        try {
+            return await response.json();
+        } catch {
+            return null;
+        }
+    };
+
     const handleUnlike = async () => {
         if (!user || !confirmProduct) return;
 
         setActionLoading(true);
-        const { data, error } = await supabase
-            .from("votes")
-            .delete()
-            .eq("user_id", user.id)
-            .eq("product_id", confirmProduct.id)
-            .gte("created_at", getVoteWindowStart())
-            .select("id");
 
-        setActionLoading(false);
+        try {
+            const response = await fetch("/api/votes", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: confirmProduct.id }),
+            });
 
-        if (error) {
-            toast.error("Impossible de retirer ce like, réessaie.");
-            return;
-        }
+            const payload = await parseResponse(response);
+            setActionLoading(false);
 
-        if (!data || data.length === 0) {
-            toast.info("Aucun like récent à retirer.");
+            if (!response.ok) {
+                if (response.status === 401) {
+                    toast.info("Connecte-toi pour gérer tes likes.");
+                } else if (response.status === 404) {
+                    toast.info(payload?.message ?? "Aucun like récent à retirer.");
+                } else {
+                    toast.error(payload?.message ?? "Impossible de retirer ce like, réessaie.");
+                }
+                setConfirmProduct(null);
+                return;
+            }
+
+            toast.success(payload?.message ?? "Le produit a bien été retiré de tes likes.");
+            setLiked((prev) => prev.filter((p) => p.id !== confirmProduct.id));
             setConfirmProduct(null);
-            return;
+        } catch {
+            setActionLoading(false);
+            toast.error("Impossible de retirer ce like, réessaie.");
         }
-
-        toast.success("Le produit a bien été retiré de tes likes.");
-        setLiked((prev) => prev.filter((p) => p.id !== confirmProduct.id));
-        setConfirmProduct(null);
     };
 
     return (

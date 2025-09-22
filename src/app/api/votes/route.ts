@@ -43,7 +43,11 @@ export async function POST(request: Request) {
             evaluation.reason === "duplicate"
                 ? "Tu as déjà voté pour cette paire ce mois-ci !"
                 : "Tu as atteint la limite de 2 votes ce mois-ci.";
-        return NextResponse.json({ message }, { status: 409 });
+
+        return NextResponse.json(
+            { message, reason: evaluation.reason, remaining: evaluation.remaining ?? 0 },
+            { status: 409 }
+        );
     }
 
     const { error: insertError } = await supabase.from("votes").insert({ user_id: user.id, product_id: productId });
