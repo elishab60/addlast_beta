@@ -25,7 +25,7 @@ export default function HeroSection() {
                         src="/heroyzyslide.webp"
                         alt="Sneaker collector premium"
                         fill
-                        className="object-contain filter grayscale"
+                        className="object-contain"
                         priority
                     />
                 </div>
