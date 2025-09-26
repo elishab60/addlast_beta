@@ -8,7 +8,7 @@ export default function MentionsLegalesPage() {
         <div className="min-h-screen flex flex-col bg-white">
             <Header />
 
-            <main className="flex-1 container mx-auto px-6 py-12 max-w-3xl">
+            <main className="flex-1 container mx-auto px-6 py-12 max-w-3xl font-mono ">
                 <h1 className="text-3xl font-bold mb-4 text-black transition-colors hover:text-accent">Mentions Légales</h1>
                 <p className="text-gray-600 text-lg mb-12">
                     Informations légales concernant le site Add-Last

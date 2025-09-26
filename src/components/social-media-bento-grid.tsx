@@ -72,7 +72,7 @@ function InstagramEmbed({ url }: { url: string }) {
 
 export default function SocialMediaBentoGrid() {
     return (
-        <section className="w-full max-w-6xl mx-auto px-4 py-12 bg-white">
+        <section className="w-full max-w-6xl mx-auto px-4 py-12 bg-white font-mono">
             {/* Header Réseaux */}
             <div className="text-center mb-12">
                 <h2 className="text-xl md:text-3xl lg:text-3xl font-bold text-black text-balance transition-colors duration-300 group-hover:text-accent-muted">Nous suivre sur les réseaux</h2>
@@ -80,7 +80,7 @@ export default function SocialMediaBentoGrid() {
                 <div className="flex justify-center items-center gap-8 mb-12">
                     <Link href="https://www.tiktok.com/@add_last" target="_blank" className="text-center group">
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
-                            <TikTokIcon className="w-8 h-8 text-white" />
+                            <TikTokIcon className="w-8 h-8 text-accent" />
                         </div>
                         <p className="text-sm font-medium text-black group-hover:text-accent-muted">@add_last</p>
                         <p className="text-xs text-gray-600">TikTok</p>
@@ -92,7 +92,7 @@ export default function SocialMediaBentoGrid() {
                         className="text-center group"
                     >
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
-                            <InstagramIcon className="w-8 h-8 text-white" />
+                            <InstagramIcon className="w-8 h-8 text-accent" />
                         </div>
                         <p className="text-sm font-medium text-black group-hover:text-accent-muted">@add_last</p>
                         <p className="text-xs text-gray-600">Instagram</p>
@@ -100,7 +100,7 @@ export default function SocialMediaBentoGrid() {
 
                     <Link href="https://www.youtube.com/@add-last" target="_blank" className="text-center group">
                         <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mb-3 mx-auto transition hover:scale-110 hover:shadow-lg hover:bg-gray-800">
-                            <YouTubeIcon className="w-8 h-8 text-white" />
+                            <YouTubeIcon className="w-8 h-8 text-accent" />
                         </div>
                         <p className="text-sm font-medium text-black group-hover:text-accent-muted">@add-last</p>
                         <p className="text-xs text-gray-600">YouTube</p>
@@ -113,7 +113,7 @@ export default function SocialMediaBentoGrid() {
                 <div className="text-center mb-6">
                     <div className="inline-flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-                            <InstagramIcon className="w-6 h-6 text-white" />
+                            <InstagramIcon className="w-6 h-6 text-accent" />
                         </div>
                         <div className="text-left">
                             <h3 className="text-xl font-bold text-accent">@add_last</h3>

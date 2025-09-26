@@ -42,7 +42,7 @@ export default function VotesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background font-mono">
             <Header />
             {/* Hero Section */}
             <section className="py-16 px-4 text-center border-b border-border">

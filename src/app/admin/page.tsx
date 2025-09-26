@@ -20,7 +20,7 @@ export default function AdminPage() {
     const [selected, setSelected] = useState("orders");
 
     return (
-        <div className="min-h-screen flex bg-gray-50">
+        <div className="min-h-screen flex bg-gray-50 font-mono">
             {/* Sidecar */}
             <nav className="w-64 min-h-screen flex flex-col bg-white border-r border-gray-200 shadow-md pt-12 pb-8 px-4">
                 <h2 className="font-black text-xl uppercase mb-10 text-accent">Panneau admin</h2>

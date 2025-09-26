@@ -5,7 +5,7 @@ import Footer from "@/components/Footer"
 
 export default function PolitiqueConfidentialitePage() {
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-white font-mono ">
             <Header />
 
             <main className="flex-1 container mx-auto px-6 py-12 max-w-3xl">

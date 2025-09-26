@@ -30,7 +30,7 @@ export default function SignInForm() {
     };
 
     return (
-        <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95">
+        <Card className="max-w-md w-full mx-auto shadow-2xl rounded-3xl border-0 bg-white/95 font-mono">
             <CardHeader className="pt-10 pb-2 flex flex-col items-center gap-2">
                 <span className="text-3xl font-black tracking-tight uppercase text-accent select-none">addlast</span>
                 <CardTitle className="text-center text-2xl font-extrabold tracking-tight">Connexion</CardTitle>

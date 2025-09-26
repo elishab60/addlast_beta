@@ -98,7 +98,7 @@ export default function WishlistPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-white">
+        <div className="flex flex-col min-h-screen bg-white font-mono ">
             <Header />
             <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
                 {/* NON CONNECTÉ */}

@@ -22,7 +22,6 @@ const navigation = [
     { name: "Catalogue", href: "/products" },
     { name: "Votes", href: "/votes" },
     { name: "Précommandes", href: "/precommandes" },
-
 ];
 
 export default function Header() {
@@ -31,7 +30,7 @@ export default function Header() {
     const { count } = useCart();
 
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = pas encore chargé
+    const [user, setUser] = useState<User | null | undefined>(undefined);
     const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
@@ -50,19 +49,21 @@ export default function Header() {
             }
         });
 
-        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                supabase
-                    .from("profiles")
-                    .select("role")
-                    .eq("id", session.user.id)
-                    .single()
-                    .then(({ data: profile }) => setIsAdmin(profile?.role === "admin"));
-            } else {
-                setIsAdmin(false);
+        const { data: listener } = supabase.auth.onAuthStateChange(
+            (_event, session) => {
+                setUser(session?.user ?? null);
+                if (session?.user) {
+                    supabase
+                        .from("profiles")
+                        .select("role")
+                        .eq("id", session.user.id)
+                        .single()
+                        .then(({ data: profile }) => setIsAdmin(profile?.role === "admin"));
+                } else {
+                    setIsAdmin(false);
+                }
             }
-        });
+        );
 
         return () => {
             ignore = true;
@@ -76,11 +77,10 @@ export default function Header() {
         router.replace("/");
     };
 
-    // 🚨 Tant que Supabase n’a pas répondu → on bloque toute la page
     if (user === undefined) {
         return (
-            <div className="w-full h-screen flex items-center justify-center bg-white">
-        <span className="text-gray-500 animate-pulse text-lg font-semibold">
+            <div className="w-full h-screen flex items-center justify-center bg-black">
+        <span className="text-gray-400 animate-pulse text-lg font-semibold">
           Chargement…
         </span>
             </div>
@@ -88,7 +88,7 @@ export default function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-[#7CFF6B]/30 bg-black/95 backdrop-blur">
+        <header className="sticky top-0 z-50 w-full border-b border-[#7CFF6B] bg-black font-mono">
             <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4 text-white">
                 {/* Logo */}
                 <Link href="/" className="flex items-center group">
@@ -106,7 +106,7 @@ export default function Header() {
                             className={`text-sm font-semibold transition-colors relative group min-w-[110px] text-center ${
                                 pathname === item.href
                                     ? "text-[#7CFF6B]"
-                                    : "text-white/70 hover:text-[#7CFF6B]"
+                                    : "text-gray-400 hover:text-[#7CFF6B]"
                             }`}
                         >
                             {item.name}
@@ -114,23 +114,23 @@ export default function Header() {
                                 className={`absolute -bottom-1 left-0 h-0.5 transition-all group-hover:w-full bg-[#7CFF6B] ${
                                     pathname === item.href ? "w-full" : "w-0"
                                 }`}
-                            ></span>
+                            />
                         </Link>
                     ))}
                 </nav>
 
                 {/* Desktop actions */}
                 <div className="hidden md:flex items-center space-x-4">
-                    {/* Zone utilisateur largeur fixe */}
+                    {/* User */}
                     <div className="min-w-[130px] flex justify-end">
                         {!user ? (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-sm font-semibold text-white/80 hover:text-[#7CFF6B] flex items-center hover:bg-white/5"
+                                className="text-sm font-semibold text-gray-400 flex items-center bg-black hover:bg-black hover:!text-gray-400 focus-visible:ring-0"
                                 onClick={() => router.push("/sign-in")}
                             >
-                                <UserIcon className="w-4 h-4 mr-2" />
+                                <UserIcon className="w-4 h-4 mr-2 text-[#7CFF6B]" />
                                 Se connecter
                             </Button>
                         ) : (
@@ -139,42 +139,47 @@ export default function Header() {
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                                        className="
+                      bg-black hover:bg-black focus-visible:ring-0
+                      !text-[#7CFF6B] hover:!text-[#7CFF6B] active:!text-[#7CFF6B] data-[state=open]:!text-[#7CFF6B]
+                      [&>svg]:!text-[#7CFF6B] hover:[&>svg]:!text-[#7CFF6B]
+                    "
+                                        aria-label="Compte"
                                     >
                                         <UserIcon className="w-5 h-5" />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
                                     align="end"
-                                    className="w-56 shadow-xl rounded-2xl mt-2 border border-[#7CFF6B]/30 bg-black text-white"
+                                    className="w-56 shadow-xl rounded-2xl mt-2 border border-[#7CFF6B] bg-black font-mono text-gray-400"
                                 >
                                     <DropdownMenuItem
                                         asChild
-                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                        className="bg-black hover:bg-black focus:bg-black hover:!text-[#7CFF6B] focus:!text-[#7CFF6B]"
                                     >
                                         <Link href="/account">Mon profil</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
                                         asChild
-                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                        className="bg-black hover:bg-black focus:bg-black hover:!text-[#7CFF6B] focus:!text-[#7CFF6B]"
                                     >
                                         <Link href="/orders">Mes commandes</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
+                                    <DropdownMenuSeparator className="bg-[#7CFF6B]/30" />
                                     {isAdmin && (
                                         <>
                                             <DropdownMenuItem
                                                 asChild
-                                                className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                                className="bg-black hover:bg-black focus:bg-black hover:!text-[#7CFF6B] focus:!text-[#7CFF6B]"
                                             >
                                                 <Link href="/admin">Admin</Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuSeparator />
+                                            <DropdownMenuSeparator className="bg-[#7CFF6B]/30" />
                                         </>
                                     )}
                                     <DropdownMenuItem
                                         onClick={handleLogout}
-                                        className="focus:bg-[#7CFF6B]/20 focus:text-[#7CFF6B]"
+                                        className="bg-black hover:bg-black focus:bg-black hover:!text-[#7CFF6B] focus:!text-[#7CFF6B]"
                                     >
                                         Déconnexion
                                     </DropdownMenuItem>
@@ -183,23 +188,31 @@ export default function Header() {
                         )}
                     </div>
 
-                    {/* Likes */}
-                    <Link href="/wishlist">
+                    {/* Wishlist */}
+                    <Link href="/wishlist" aria-label="Wishlist">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                            className="
+                bg-black hover:bg-black focus-visible:ring-0
+                !text-[#7CFF6B] hover:!text-[#7CFF6B] active:!text-[#7CFF6B]
+                [&>svg]:!text-[#7CFF6B] hover:[&>svg]:!text-[#7CFF6B]
+              "
                         >
                             <Heart className="w-5 h-5" />
                         </Button>
                     </Link>
 
                     {/* Cart */}
-                    <Link href="/cart">
+                    <Link href="/cart" aria-label="Panier">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="relative text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                            className="
+                relative bg-black hover:bg-black focus-visible:ring-0
+                !text-[#7CFF6B] hover:!text-[#7CFF6B] active:!text-[#7CFF6B]
+                [&>svg]:!text-[#7CFF6B] hover:[&>svg]:!text-[#7CFF6B]
+              "
                         >
                             <ShoppingCart className="w-5 h-5" />
                             {count > 0 && (
@@ -213,23 +226,29 @@ export default function Header() {
 
                 {/* Mobile menu */}
                 <div className="md:hidden flex items-center space-x-2">
-                    {/* Likes */}
-                    <Link href="/wishlist">
+                    <Link href="/wishlist" aria-label="Wishlist">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                            className="
+                bg-black hover:bg-black focus-visible:ring-0
+                !text-[#7CFF6B] hover:!text-[#7CFF6B]
+                [&>svg]:!text-[#7CFF6B]
+              "
                         >
                             <Heart className="w-5 h-5" />
                         </Button>
                     </Link>
 
-                    {/* Cart */}
-                    <Link href="/cart">
+                    <Link href="/cart" aria-label="Panier">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="relative text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                            className="
+                relative bg-black hover:bg-black focus-visible:ring-0
+                !text-[#7CFF6B] hover:!text-[#7CFF6B]
+                [&>svg]:!text-[#7CFF6B]
+              "
                         >
                             <ShoppingCart className="w-5 h-5" />
                             {count > 0 && (
@@ -240,13 +259,17 @@ export default function Header() {
                         </Button>
                     </Link>
 
-                    {/* Burger menu */}
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                         <SheetTrigger asChild>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                                className="
+                  bg-black hover:bg-black focus-visible:ring-0
+                  !text-[#7CFF6B] hover:!text-[#7CFF6B]
+                  [&>svg]:!text-[#7CFF6B]
+                "
+                                aria-label="Ouvrir le menu"
                             >
                                 <Menu className="w-5 h-5" />
                                 <span className="sr-only">Ouvrir le menu</span>
@@ -254,7 +277,7 @@ export default function Header() {
                         </SheetTrigger>
                         <SheetContent
                             side="right"
-                            className="w-80 bg-black text-white border-l border-[#7CFF6B]/30"
+                            className="w-80 bg-black text-gray-400 border-l border-[#7CFF6B]"
                         >
                             <div className="flex flex-col space-y-6 mt-6">
                                 <nav className="flex flex-col space-y-4">
@@ -263,17 +286,17 @@ export default function Header() {
                                             key={item.name}
                                             href={item.href}
                                             onClick={() => setIsOpen(false)}
-                                            className="text-lg font-semibold text-white/80 hover:text-[#7CFF6B] transition-colors"
+                                            className="text-lg font-semibold text-gray-400 hover:text-[#7CFF6B] transition-colors"
                                         >
                                             {item.name}
                                         </Link>
                                     ))}
                                 </nav>
-                                <div className="flex flex-col space-y-3 pt-6 border-t border-white/10">
+                                <div className="flex flex-col space-y-3 pt-6 border-t border-[#7CFF6B]/30">
                                     {!user ? (
                                         <Button
                                             variant="ghost"
-                                            className="justify-start text-white/80 hover:text-[#7CFF6B] hover:bg-white/5"
+                                            className="justify-start text-gray-400 bg-black hover:bg-black hover:!text-gray-400 focus-visible:ring-0"
                                             onClick={() => {
                                                 setIsOpen(false);
                                                 router.push("/sign-in");
@@ -287,14 +310,14 @@ export default function Header() {
                                             <Link
                                                 href="/account"
                                                 onClick={() => setIsOpen(false)}
-                                                className="text-white/80 hover:text-[#7CFF6B]"
+                                                className="text-gray-400 hover:text-[#7CFF6B]"
                                             >
                                                 Mon profil
                                             </Link>
                                             <Link
                                                 href="/orders"
                                                 onClick={() => setIsOpen(false)}
-                                                className="text-white/80 hover:text-[#7CFF6B]"
+                                                className="text-gray-400 hover:text-[#7CFF6B]"
                                             >
                                                 Mes commandes
                                             </Link>
@@ -302,7 +325,7 @@ export default function Header() {
                                                 <Link
                                                     href="/admin"
                                                     onClick={() => setIsOpen(false)}
-                                                    className="text-white/80 hover:text-[#7CFF6B]"
+                                                    className="text-gray-400 hover:text-[#7CFF6B]"
                                                 >
                                                     Admin
                                                 </Link>
@@ -312,7 +335,7 @@ export default function Header() {
                                                     handleLogout();
                                                     setIsOpen(false);
                                                 }}
-                                                className="text-left text-white/80 hover:text-[#7CFF6B]"
+                                                className="text-left text-gray-400 hover:text-[#7CFF6B]"
                                             >
                                                 Déconnexion
                                             </button>

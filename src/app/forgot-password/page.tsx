@@ -3,7 +3,7 @@ import ForgotPasswordForm from "@/components/ForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-white to-neutral-100 relative">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-white to-neutral-100 relative font-mono ">
             <BackButton />
             <ForgotPasswordForm />
         </div>

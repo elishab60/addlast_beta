@@ -15,7 +15,7 @@ export default function HeroSection() {
         <section className="min-h-screen bg-white text-black flex flex-col items-center justify-center px-4 py-4">
             <div className="max-w-4xl mx-auto text-center space-y-12">
                 {/* Heading */}
-                <HyperText>Choisis les sneakers que tu veux revoir.</HyperText>
+                <HyperText/>
                 {/* Image (16/9) */}
                 <div className="relative w-full max-w-3xl aspect-video mx-auto">
                     <Image
@@ -33,7 +33,7 @@ export default function HeroSection() {
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                     <Link href="/catalogue">
-                        <Button size="lg" className="bg-black text-white  transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
+                        <Button size="lg" className="bg-black text-accent font-mono transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
                             Découvrir les paires
                         </Button>
                     </Link>

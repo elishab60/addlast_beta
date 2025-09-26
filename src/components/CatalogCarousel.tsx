@@ -38,7 +38,7 @@ export default function CatalogGrid({
                                         ctaHref = "/products",
                                     }: CatalogGridProps) {
     return (
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white font-mono">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Titre centré avec underline hover */}
                 <div className="text-center mb-10 md:mb-12">
@@ -65,7 +65,7 @@ export default function CatalogGrid({
                 {/* CTA centré sous les cards */}
                 <div className="text-center mt-10">
                     <Link href={ctaHref}>
-                        <Button className="bg-black text-white  transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
+                        <Button className="bg-black text-accent font-mono   transition-all duration-300 hover:bg-accent hover:text-black px-8 py-3 text-base font-medium tracking-wide">
                             Voir tout le catalogue
                         </Button>
                     </Link>
@@ -235,7 +235,7 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 <CardTitle className="mt-3 text-lg font-semibold truncate text-black group-hover:text-black-muted transition-colors">
                     {product.name}
                 </CardTitle>
-                <div className="text-sm text-neutral-500">{product.brand}</div>
+                <div className="text-sm text-neutral-500 text-accent">{product.brand}</div>
             </CardHeader>
 
             <CardContent className="flex flex-col gap-4">
@@ -263,13 +263,17 @@ function GridCard({ product, user }: { product: Product; user: User | null }) {
                 {/* Progress likes */}
                 <div>
                     <div className="flex justify-between text-xs text-neutral-500 mb-1">
-                        <span>
-                            {votesCount} / {product.goal_likes} likes
-                        </span>
+    <span>
+      {votesCount} / {product.goal_likes} likes
+    </span>
                         <span>{Math.round(percent)}%</span>
                     </div>
-                    <Progress value={percent} className="h-2 rounded-full" />
+                    <Progress
+                        value={percent}
+                        className="h-2 rounded-full [&>div]:bg-[#7CFF6B]"
+                    />
                 </div>
+
 
                 {/* Bandeau d'état */}
                 <StatusBand

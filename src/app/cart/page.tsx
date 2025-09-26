@@ -11,7 +11,7 @@ export default function CartPage() {
     const { items, count, total, removeFromCart, updateQuantity, clearCart } = useCart();
 
     return (
-        <div className="flex flex-col min-h-screen bg-white">
+        <div className="flex flex-col min-h-screen bg-white font-mono">
             <Header />
             <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-12">
                 <h1 className="text-2xl font-bold mb-8 text-accent">Mon panier</h1>

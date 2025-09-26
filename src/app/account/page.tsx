@@ -55,7 +55,7 @@ export default function AccountPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col font-mono">
             <Header />
             <main className="flex-1 p-4">
                 <UserProfileBento profile={profile} />

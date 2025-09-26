@@ -4,7 +4,7 @@ import ProposePairForm from "@/components/ProposePairForm";
 
 export default function ProposePage() {
     return (
-        <div className="flex flex-col min-h-screen bg-white">
+        <div className="flex flex-col min-h-screen bg-white font-mono">
             <Header />
             <main className="flex-1 flex items-center justify-center px-4 py-8">
                 <ProposePairForm />

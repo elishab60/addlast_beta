@@ -77,7 +77,7 @@ export default function ProductsPage() {
     });
 
     return (
-        <div className="min-h-screen flex flex-col bg-white text-black">
+        <div className="min-h-screen flex flex-col bg-white text-black font-mono">
             <Header />
 
             {/* Hero */}

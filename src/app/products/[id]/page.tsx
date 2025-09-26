@@ -224,7 +224,7 @@ export default function ProductPage() {
 
     if (loading || !product) {
         return (
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col font-mono ">
                 <Header />
                 <main className="flex-1 flex items-center justify-center">Chargement…</main>
                 <Footer />
@@ -236,7 +236,7 @@ export default function ProductPage() {
     const shoeSizes = Array.from({ length: 40 }, (_, i) => (35 + i * 0.5).toString())
 
     return (
-        <div className="min-h-screen flex flex-col bg-background">
+        <div className="min-h-screen flex flex-col bg-background font-mono ">
             <Header />
             <main className="container mx-auto flex-1 flex flex-col md:flex-row gap-12 py-12">
                 {/* Images */}

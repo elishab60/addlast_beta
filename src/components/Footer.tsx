@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 
 export default function Footer() {
     return (
-        <footer className="relative overflow-hidden border-t border-[#7CFF6B]/30 bg-black text-white">
+        <footer className="relative overflow-hidden border-t border-[#7CFF6B]/30 bg-black text-white font-mono">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(124,255,107,0.08),_transparent_55%)]" />
 
             <div className="container relative z-10 mx-auto px-4 py-12">

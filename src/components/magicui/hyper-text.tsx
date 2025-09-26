@@ -7,47 +7,48 @@ import { useEffect, useRef, useState } from "react";
 type CharacterSet = string[] | readonly string[];
 
 interface HyperTextProps extends MotionProps {
-  /** The text content to be animated */
-  children: string;
-  /** Optional className for styling */
   className?: string;
-  /** Duration of the animation in milliseconds */
   duration?: number;
-  /** Delay before animation starts in milliseconds */
   delay?: number;
-  /** Component to render as - defaults to div */
   as?: React.ElementType;
-  /** Whether to start animation when element comes into view */
   startOnView?: boolean;
-  /** Whether to trigger animation on hover */
   animateOnHover?: boolean;
-  /** Custom character set for scramble effect. Defaults to uppercase alphabet */
   characterSet?: CharacterSet;
 }
 
 const DEFAULT_CHARACTER_SET = Object.freeze(
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
 ) as readonly string[];
 
 const getRandomInt = (max: number): number => Math.floor(Math.random() * max);
 
 export function HyperText({
-  children,
-  className,
-  duration = 800,
-  delay = 0,
-  as: Component = "div",
-  startOnView = false,
-  animateOnHover = true,
-  characterSet = DEFAULT_CHARACTER_SET,
-  ...props
-}: HyperTextProps) {
+                            className,
+                            duration = 1500,
+                            delay = 0,
+                            as: Component = "div",
+                            startOnView = false,
+                            animateOnHover = true,
+                            characterSet = DEFAULT_CHARACTER_SET,
+                            ...props
+                          }: HyperTextProps) {
   const MotionComponent = motion.create(Component, {
     forwardMotionProps: true,
   });
 
+  // 👉 Texte codé en dur
+  const text = "CHOISIS LES SNEAKERS QUE TU VEUX REVOIR.";
+
+  // repérae des index du mot "revoir"
+  const targetWord = "revoir.";
+  const startIndex = text.toLowerCase().indexOf(targetWord);
+  const accentIndexes =
+      startIndex !== -1
+          ? Array.from({ length: targetWord.length }, (_, k) => startIndex + k)
+          : [];
+
   const [displayText, setDisplayText] = useState<string[]>(() =>
-    children.split(""),
+      text.split(""),
   );
   const [isAnimating, setIsAnimating] = useState(false);
   const iterationCount = useRef(0);
@@ -60,39 +61,32 @@ export function HyperText({
     }
   };
 
-  // Handle animation start based on view or delay
   useEffect(() => {
     if (!startOnView) {
-      const startTimeout = setTimeout(() => {
-        setIsAnimating(true);
-      }, delay);
+      const startTimeout = setTimeout(() => setIsAnimating(true), delay);
       return () => clearTimeout(startTimeout);
     }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            setIsAnimating(true);
-          }, delay);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1, rootMargin: "-30% 0px -30% 0px" },
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => setIsAnimating(true), delay);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 },
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
-    }
+    if (elementRef.current) observer.observe(elementRef.current);
 
     return () => observer.disconnect();
   }, [delay, startOnView]);
 
-  // Handle scramble animation
+  // animation scramble progressive
   useEffect(() => {
     if (!isAnimating) return;
 
-    const maxIterations = children.length;
+    const maxIterations = text.length;
     const startTime = performance.now();
     let animationFrameId: number;
 
@@ -100,16 +94,14 @@ export function HyperText({
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      iterationCount.current = progress * maxIterations;
+      const revealedCount = Math.floor(progress * maxIterations);
 
-      setDisplayText((currentText) =>
-        currentText.map((letter, index) =>
-          letter === " "
-            ? letter
-            : index <= iterationCount.current
-              ? children[index]
-              : characterSet[getRandomInt(characterSet.length)],
-        ),
+      setDisplayText(
+          text.split("").map((letter, index) => {
+            if (letter === " ") return " ";
+            if (index <= revealedCount) return text[index];
+            return characterSet[getRandomInt(characterSet.length)];
+          }),
       );
 
       if (progress < 1) {
@@ -122,25 +114,29 @@ export function HyperText({
     animationFrameId = requestAnimationFrame(animate);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [children, duration, isAnimating, characterSet]);
+  }, [text, duration, isAnimating, characterSet]);
 
   return (
-    <MotionComponent
-      ref={elementRef}
-      className={cn("overflow-hidden py-2 text-4xl font-bold", className)}
-      onMouseEnter={handleAnimationTrigger}
-      {...props}
-    >
-      <AnimatePresence>
-        {displayText.map((letter, index) => (
-          <motion.span
-            key={index}
-            className={cn("font-mono", letter === " " ? "w-3" : "")}
-          >
-            {letter.toUpperCase()}
-          </motion.span>
-        ))}
-      </AnimatePresence>
-    </MotionComponent>
+      <MotionComponent
+          ref={elementRef}
+          className={cn("overflow-hidden py-2 text-4xl font-bold", className)}
+          onMouseEnter={handleAnimationTrigger}
+          {...props}
+      >
+        <AnimatePresence>
+          {displayText.map((char, i) => (
+              <motion.span
+                  key={i}
+                  className={cn(
+                      "font-mono",
+                      char === " " ? "w-3" : "",
+                      accentIndexes.includes(i) && "text-accent" // ✅ applique la couleur sur toutes les lettres du mot
+                  )}
+              >
+                {char}
+              </motion.span>
+          ))}
+        </AnimatePresence>
+      </MotionComponent>
   );
 }
