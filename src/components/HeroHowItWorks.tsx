@@ -5,7 +5,7 @@ import { CheckCircle, Package, Shield, Users } from "lucide-react"
 
 export default function HowItWorks() {
     return (
-        <section className="pt-10 pb-20 px-6 md:pt-16 md:pb-32 bg-white">
+        <section className="pt-10 pb-20 px-6 md:pt-16 md:pb-32 bg-white mt-12">
             <div className="max-w-7xl mx-auto">
                 {/* Title with hover underline animation */}
                 <div className="text-center mb-16 md:mb-24">
