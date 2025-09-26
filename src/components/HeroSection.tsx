@@ -2,29 +2,17 @@
 
 import { Button } from "@/components/ui/button"
 import { HyperText } from "@/components/magicui/hyper-text"
-import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect"
+import GradientBackground from "@/components/ui/gradient-background"
 import Image from "next/image"
 import Link from "next/link"
 
 export default function HeroSection() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            {/* Background animé */}
-            <div className="absolute inset-0">
-                <CanvasRevealEffect
-                    animationSpeed={2}
-                    containerClassName="bg-black"
-                    colors={[
-                        [0, 180, 0],   // Brighter green
-                        [0, 220, 0],   // Even brighter green
-                        [100, 255, 100], // Light green
-                    ]}
-                    dotSize={3}
-                    opacities={[0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1]}
-                />
-                {/* Overlay pour lisibilité */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/80" />
-            </div>
+            {/* Background animé simple */}
+            <GradientBackground />
+            {/* Overlay léger pour lisibilité */}
+            <div className="absolute inset-0 bg-black/40" />
 
             {/* Contenu */}
             <div className="relative z-10 max-w-4xl mx-auto text-center space-y-12 px-4 py-8">
