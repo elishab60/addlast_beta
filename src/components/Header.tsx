@@ -89,10 +89,11 @@ export default function Header() {
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-[#7CFF6B] bg-black font-mono">
-            <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4 text-white">
+            <div className="w-full flex h-16 items-center justify-between px-6 text-white">
                 {/* Logo */}
                 <Link href="/" className="flex items-center group">
-          <span className="font-extrabold text-2xl tracking-tight text-white transition-colors group-hover:text-[#7CFF6B]">
+          <span
+              className="font-extrabold text-2xl tracking-tight text-white transition-colors group-hover:text-[#7CFF6B]">
             add<span className="text-[#7CFF6B]">last</span>
           </span>
                 </Link>
@@ -130,7 +131,7 @@ export default function Header() {
                                 className="text-sm font-semibold text-gray-400 flex items-center bg-black hover:bg-black hover:!text-gray-400 focus-visible:ring-0"
                                 onClick={() => router.push("/sign-in")}
                             >
-                                <UserIcon className="w-4 h-4 mr-2 text-[#7CFF6B]" />
+                                <UserIcon className="w-4 h-4 mr-2 text-[#7CFF6B]"/>
                                 Se connecter
                             </Button>
                         ) : (
@@ -146,7 +147,7 @@ export default function Header() {
                     "
                                         aria-label="Compte"
                                     >
-                                        <UserIcon className="w-5 h-5" />
+                                        <UserIcon className="w-5 h-5"/>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
@@ -165,7 +166,7 @@ export default function Header() {
                                     >
                                         <Link href="/orders">Mes commandes</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-[#7CFF6B]/30" />
+                                    <DropdownMenuSeparator className="bg-[#7CFF6B]/30"/>
                                     {isAdmin && (
                                         <>
                                             <DropdownMenuItem
@@ -174,7 +175,7 @@ export default function Header() {
                                             >
                                                 <Link href="/admin">Admin</Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuSeparator className="bg-[#7CFF6B]/30" />
+                                            <DropdownMenuSeparator className="bg-[#7CFF6B]/30"/>
                                         </>
                                     )}
                                     <DropdownMenuItem
@@ -199,7 +200,7 @@ export default function Header() {
                 [&>svg]:!text-[#7CFF6B] hover:[&>svg]:!text-[#7CFF6B]
               "
                         >
-                            <Heart className="w-5 h-5" />
+                            <Heart className="w-5 h-5"/>
                         </Button>
                     </Link>
 
@@ -214,9 +215,10 @@ export default function Header() {
                 [&>svg]:!text-[#7CFF6B] hover:[&>svg]:!text-[#7CFF6B]
               "
                         >
-                            <ShoppingCart className="w-5 h-5" />
+                            <ShoppingCart className="w-5 h-5"/>
                             {count > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#7CFF6B] text-black text-xs rounded-full flex items-center justify-center font-medium">
+                                <span
+                                    className="absolute -top-1 -right-1 w-4 h-4 bg-[#7CFF6B] text-black text-xs rounded-full flex items-center justify-center font-medium">
                   {count}
                 </span>
                             )}
@@ -236,7 +238,7 @@ export default function Header() {
                 [&>svg]:!text-[#7CFF6B]
               "
                         >
-                            <Heart className="w-5 h-5" />
+                            <Heart className="w-5 h-5"/>
                         </Button>
                     </Link>
 
@@ -250,9 +252,10 @@ export default function Header() {
                 [&>svg]:!text-[#7CFF6B]
               "
                         >
-                            <ShoppingCart className="w-5 h-5" />
+                            <ShoppingCart className="w-5 h-5"/>
                             {count > 0 && (
-                                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#7CFF6B] text-black text-xs rounded-full flex items-center justify-center font-medium">
+                                <span
+                                    className="absolute -top-1 -right-1 w-4 h-4 bg-[#7CFF6B] text-black text-xs rounded-full flex items-center justify-center font-medium">
                   {count}
                 </span>
                             )}
@@ -271,7 +274,7 @@ export default function Header() {
                 "
                                 aria-label="Ouvrir le menu"
                             >
-                                <Menu className="w-5 h-5" />
+                                <Menu className="w-5 h-5"/>
                                 <span className="sr-only">Ouvrir le menu</span>
                             </Button>
                         </SheetTrigger>
@@ -302,7 +305,7 @@ export default function Header() {
                                                 router.push("/sign-in");
                                             }}
                                         >
-                                            <UserIcon className="w-4 h-4 mr-2" />
+                                            <UserIcon className="w-4 h-4 mr-2"/>
                                             Se connecter
                                         </Button>
                                     ) : (
