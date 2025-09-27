@@ -20,10 +20,10 @@ export default function AdminPage() {
     const [selected, setSelected] = useState("orders");
 
     return (
-        <div className="min-h-screen flex bg-gray-50 font-mono">
+        <div className="min-h-screen flex bg-gray-50 font-mono text-black">
             {/* Sidecar */}
             <nav className="w-64 min-h-screen flex flex-col bg-white border-r border-gray-200 shadow-md pt-12 pb-8 px-4">
-                <h2 className="font-black text-xl uppercase mb-10 text-accent">Panneau admin</h2>
+                <h2 className="font-black text-xl uppercase mb-10 text-black">Panneau admin</h2>
                 <ul className="flex-1 flex flex-col gap-2">
                     {sections.map((s) => (
                         <li key={s.id}>
@@ -31,8 +31,8 @@ export default function AdminPage() {
                                 variant={selected === s.id ? "default" : "ghost"}
                                 className={`w-full justify-start rounded-lg font-semibold transition border border-transparent ${
                                     selected === s.id
-                                        ? "bg-accent text-black hover:bg-accent"
-                                        : "text-accent hover:text-accent-muted hover:bg-accent-muted"
+                                        ? "bg-accent  text-black hover:bg-accent"
+                                        : "text-black hover:text-black "
                                 }`}
                                 onClick={() => setSelected(s.id)}
                             >
@@ -43,7 +43,7 @@ export default function AdminPage() {
                 </ul>
                 <div className="mt-auto">
                     <Link href="/">
-                        <Button variant="outline" className="w-full rounded-full border border-accent text-accent hover:text-accent-muted hover:bg-accent-muted">
+                        <Button variant="outline" className="w-full rounded-full border border-black text-black hover:text-black hover:bg-accent">
                             Retour au site
                         </Button>
                     </Link>
@@ -55,14 +55,14 @@ export default function AdminPage() {
                 <div className="w-full max-w-6xl flex-1 mx-auto bg-white rounded-2xl shadow p-10 min-h-[70vh] flex flex-col">
                     {selected === "orders" && (
                         <div>
-                            <h3 className="font-bold text-2xl mb-8 text-accent">Gestion des commandes</h3>
+                            <h3 className="font-bold text-2xl mb-8 text-black">Gestion des commandes</h3>
                             <p className="text-gray-400">Module à venir...</p>
                         </div>
                     )}
 
                     {selected === "users" && (
                         <div className="flex-1 flex flex-col">
-                            <h3 className="font-bold text-2xl mb-8 text-accent">Gestion des utilisateurs</h3>
+                            <h3 className="font-bold text-2xl mb-8 text-black">Gestion des utilisateurs</h3>
                             <div className="flex-1 w-full">
                                 <UsersTable />
                             </div>
@@ -71,7 +71,7 @@ export default function AdminPage() {
 
                     {selected === "products" && (
                         <div className="flex-1 flex flex-col">
-                            <h3 className="font-bold text-2xl mb-8 text-accent">Gestion des produits</h3>
+                            <h3 className="font-bold text-2xl mb-8 text-black">Gestion des produits</h3>
                             <div className="flex-1 w-full">
                                 <ProductsTable />
                             </div>
@@ -80,7 +80,7 @@ export default function AdminPage() {
 
                     {selected === "likes" && ( // 👈 NEW
                         <div className="flex-1 flex flex-col">
-                            <h3 className="font-bold text-2xl mb-8 text-accent">Votes (likes) par produit</h3>
+                            <h3 className="font-bold text-2xl mb-8 text-black">Votes (likes) par produit</h3>
                             <div className="flex-1 w-full">
                                 <AdminLikesTable />
                             </div>
@@ -89,7 +89,7 @@ export default function AdminPage() {
 
                     {selected === "submissions" && (
                         <div className="flex-1 flex flex-col">
-                            <h3 className="font-bold text-2xl mb-8 text-accent">Soumissions Communauté</h3>
+                            <h3 className="font-bold text-2xl mb-8 text-black">Soumissions Communauté</h3>
                             <div className="flex-1 w-full">
                                 <SubmissionsTable />
                             </div>
