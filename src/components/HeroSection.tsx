@@ -22,7 +22,7 @@ export default function HeroSection() {
                 {/* Image */}
                 <div className="relative w-full max-w-3xl aspect-video mx-auto">
                     <Image
-                        src="/heroyzyslide.webp"
+                        src="/heroyzyblack.webp"
                         alt="Sneaker collector premium"
                         fill
                         className="object-contain"
